@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { X, Check } from 'lucide-react'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const MirrorMode = () => {
   const navigate = useNavigate()
@@ -58,11 +59,7 @@ const MirrorMode = () => {
   }
 
   if (loading) {
-    return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-      </div>
-    )
+    return <LoadingSpinner text="Preparing your manifestations..." />
   }
 
   return (
@@ -120,9 +117,16 @@ const MirrorMode = () => {
             <button
               onClick={markAsComplete}
               disabled={marking}
-              className="btn-primary text-xl px-8 py-4 mb-4"
+              className="btn-primary text-xl px-8 py-4 mb-4 flex items-center justify-center"
             >
-              {marking ? 'Marking Complete...' : '✔ I have completed today\'s manifestation'}
+              {marking ? (
+                <LoadingSpinner variant="button" />
+              ) : (
+                <>
+                  <Check className="w-6 h-6 mr-2" />
+                  I have completed today's manifestation
+                </>
+              )}
             </button>
 
             <div className="mt-6">

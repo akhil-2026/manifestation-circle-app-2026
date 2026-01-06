@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Moon, User, Mail, Lock } from 'lucide-react'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -106,8 +107,16 @@ const Register = () => {
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full">
-              {loading ? 'Creating Account...' : 'Join Circle'}
+            <button 
+              type="submit" 
+              disabled={loading} 
+              className="btn-primary w-full flex items-center justify-center"
+            >
+              {loading ? (
+                <LoadingSpinner variant="button" />
+              ) : (
+                'Join Circle'
+              )}
             </button>
           </form>
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Moon, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -105,9 +106,13 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full"
+              className="btn-primary w-full flex items-center justify-center"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? (
+                <LoadingSpinner variant="button" />
+              ) : (
+                'Sign In'
+              )}
             </button>
           </form>
 
