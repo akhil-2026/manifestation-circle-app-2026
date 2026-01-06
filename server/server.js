@@ -20,18 +20,25 @@ app.use(helmet());
 // CORS configuration for production
 const corsOptions = {
   origin: function (origin, callback) {
+    console.log('🌐 CORS request from origin:', origin)
+    
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
       process.env.CORS_ORIGIN,
       'http://localhost:5173', // Development
-      'http://localhost:3000'  // Alternative dev port
+      'http://localhost:3000',  // Alternative dev port
+      'https://manifestation-circle-2026-app.vercel.app' // Hardcoded for debugging
     ].filter(Boolean);
     
+    console.log('🔒 Allowed origins:', allowedOrigins)
+    
     if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('✅ CORS allowed for:', origin)
       callback(null, true);
     } else {
+      console.log('❌ CORS blocked for:', origin)
       callback(new Error('Not allowed by CORS'));
     }
   },
