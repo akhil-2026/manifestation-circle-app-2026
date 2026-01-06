@@ -50,13 +50,13 @@
   }
 }
 
-/* Custom animations for the half moon loading spinner */
+/* Custom animations for the Moon loading spinner */
 @keyframes spin-slow {
   from {
-    transform: translateX(50%) rotate(0deg);
+    transform: rotate(0deg);
   }
   to {
-    transform: translateX(50%) rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 
@@ -91,8 +91,17 @@
   }
 }
 
+@keyframes moon-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.8));
+  }
+}
+
 .animate-spin-slow {
-  animation: spin-slow 3s linear infinite;
+  animation: spin-slow 4s linear infinite;
 }
 
 .animate-twinkle {
@@ -105,4 +114,8 @@
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+.animate-moon-glow {
+  animation: moon-glow 2s ease-in-out infinite;
 }

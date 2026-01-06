@@ -1,4 +1,5 @@
 import React from 'react'
+import { Moon } from 'lucide-react'
 
 const LoadingSpinner = ({ size = 'md', text = 'Loading...', variant = 'fullscreen', className = '' }) => {
   const sizeClasses = {
@@ -7,13 +8,17 @@ const LoadingSpinner = ({ size = 'md', text = 'Loading...', variant = 'fullscree
     lg: 'w-24 h-24'
   }
 
+  const iconSizes = {
+    sm: 'w-4 h-4',
+    md: 'w-12 h-12',
+    lg: 'w-16 h-16'
+  }
+
   // Inline spinner for buttons and forms
   if (variant === 'inline') {
     return (
       <div className={`inline-flex items-center ${className}`}>
-        <div className={`${sizeClasses.sm} relative overflow-hidden rounded-full bg-gradient-to-br from-purple-600 to-purple-800`}>
-          <div className="absolute inset-0 bg-dark-950 rounded-full transform translate-x-1/2 animate-spin-slow"></div>
-        </div>
+        <Moon className={`${iconSizes.sm} text-purple-500 animate-spin-slow`} />
         {text && <span className="ml-2 text-sm">{text}</span>}
       </div>
     )
@@ -22,33 +27,32 @@ const LoadingSpinner = ({ size = 'md', text = 'Loading...', variant = 'fullscree
   // Button spinner
   if (variant === 'button') {
     return (
-      <div className={`${sizeClasses.sm} relative overflow-hidden rounded-full bg-gradient-to-br from-purple-400 to-purple-600`}>
-        <div className="absolute inset-0 bg-white rounded-full transform translate-x-1/2 animate-spin-slow"></div>
-      </div>
+      <Moon className={`${iconSizes.sm} text-white animate-spin-slow`} />
     )
   }
 
-  // Full screen mystical loading
+  // Full screen mystical loading with Moon icon
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-dark-950">
-      {/* Half Moon Loading Spinner */}
+      {/* Moon Loading Spinner */}
       <div className="relative animate-float">
         {/* Outer glow ring */}
         <div className={`${sizeClasses[size]} absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 animate-pulse`}></div>
         
-        {/* Main half moon */}
-        <div className={`${sizeClasses[size]} relative overflow-hidden rounded-full bg-gradient-to-br from-purple-600 to-purple-800 shadow-2xl`}>
-          {/* Half moon shape */}
-          <div className="absolute inset-0 bg-dark-950 rounded-full transform translate-x-1/2 animate-spin-slow"></div>
+        {/* Main Moon Icon Container */}
+        <div className={`${sizeClasses[size]} relative flex items-center justify-center rounded-full bg-gradient-to-br from-purple-600/20 to-purple-800/20 shadow-2xl backdrop-blur-sm border border-purple-500/30`}>
+          {/* Moon Icon */}
+          <Moon className={`${iconSizes[size]} text-purple-400 animate-spin-slow animate-moon-glow drop-shadow-lg`} />
           
           {/* Inner glow */}
-          <div className="absolute inset-2 rounded-full bg-gradient-to-br from-purple-400/30 to-pink-400/30 animate-pulse"></div>
+          <div className="absolute inset-2 rounded-full bg-gradient-to-br from-purple-400/10 to-pink-400/10 animate-pulse"></div>
           
           {/* Stars around the moon */}
           <div className="absolute -top-1 -right-1 w-1 h-1 bg-yellow-300 rounded-full animate-twinkle"></div>
           <div className="absolute -bottom-1 -left-1 w-0.5 h-0.5 bg-blue-300 rounded-full animate-twinkle-delayed"></div>
           <div className="absolute top-1/2 -left-2 w-0.5 h-0.5 bg-purple-300 rounded-full animate-twinkle"></div>
           <div className="absolute top-0 left-1/2 w-0.5 h-0.5 bg-pink-300 rounded-full animate-twinkle-delayed"></div>
+          <div className="absolute bottom-1/4 -right-2 w-0.5 h-0.5 bg-indigo-300 rounded-full animate-twinkle"></div>
         </div>
         
         {/* Rotating outer ring */}
