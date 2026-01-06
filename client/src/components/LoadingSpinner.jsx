@@ -77,5 +77,3 @@ const LoadingSpinner = ({ size = 'md', text = 'Loading...', variant = 'fullscree
 }
 
 export default LoadingSpinner
-
-export default LoadingSpinner
