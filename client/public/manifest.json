@@ -1,7 +1,7 @@
 {
-  "name": "Manifestation Circle",
-  "short_name": "Manifestation",
-  "description": "Daily manifestation practice for our circle of friends",
+  "name": "Manifestation Circle - Daily Practice & Tracking",
+  "short_name": "Manifestation Circle",
+  "description": "Transform your reality through daily manifestation practice. Track your progress, maintain streaks, and manifest with your circle of friends. 🌙✨",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -18,9 +18,17 @@
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
+    },
+    {
+      "src": "/og-image.svg",
+      "sizes": "1200x630",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ],
-  "categories": ["lifestyle", "health", "productivity"],
+  "categories": ["lifestyle", "health", "productivity", "wellness"],
   "lang": "en",
-  "dir": "ltr"
+  "dir": "ltr",
+  "scope": "/",
+  "id": "manifestation-circle-app"
 }

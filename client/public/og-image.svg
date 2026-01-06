@@ -1,0 +1,52 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0f23;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1e1b4b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#581c87;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="moonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Stars -->
+  <circle cx="150" cy="100" r="2" fill="#fbbf24" opacity="0.8"/>
+  <circle cx="1050" cy="150" r="1.5" fill="#60a5fa" opacity="0.6"/>
+  <circle cx="200" cy="500" r="1" fill="#a78bfa" opacity="0.7"/>
+  <circle cx="1000" cy="450" r="2" fill="#fbbf24" opacity="0.9"/>
+  <circle cx="100" cy="300" r="1" fill="#34d399" opacity="0.5"/>
+  <circle cx="1100" cy="300" r="1.5" fill="#f472b6" opacity="0.6"/>
+  
+  <!-- Main Moon Icon (Large) -->
+  <g transform="translate(300, 200)">
+    <!-- Moon shape -->
+    <path d="M100 20C144.183 20 180 55.817 180 100C180 144.183 144.183 180 100 180C55.817 180 20 144.183 20 100C20 55.817 55.817 20 100 20Z" fill="url(#moonGradient)" opacity="0.9"/>
+    <path d="M100 40C133.137 40 160 66.863 160 100C160 133.137 133.137 160 100 160C88.954 160 78.522 156.632 69.589 150.411C91.815 138.967 107 115.676 107 88.5C107 61.324 91.815 38.033 69.589 26.589C78.522 20.368 88.954 20 100 20Z" fill="#0f0f23" opacity="0.6"/>
+  </g>
+  
+  <!-- Title -->
+  <text x="600" y="380" font-family="Arial, sans-serif" font-size="64" font-weight="bold" text-anchor="middle" fill="#ffffff">
+    Manifestation Circle
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="430" font-family="Arial, sans-serif" font-size="32" text-anchor="middle" fill="#a855f7">
+    Daily Practice &amp; Tracking 🌙
+  </text>
+  
+  <!-- Description -->
+  <text x="600" y="480" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#d1d5db">
+    Transform your reality through daily manifestation practice
+  </text>
+  
+  <!-- Bottom quote -->
+  <text x="600" y="550" font-family="Arial, sans-serif" font-size="18" font-style="italic" text-anchor="middle" fill="#9ca3af">
+    "What you repeat daily becomes your reality."
+  </text>
+</svg>
