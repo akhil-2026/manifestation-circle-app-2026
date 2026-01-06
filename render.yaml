@@ -4,9 +4,8 @@ services:
     env: node
     region: oregon
     plan: free
-    rootDir: server
-    buildCommand: npm install
-    startCommand: node server.js
+    buildCommand: npm install --prefix server
+    startCommand: node server/server.js
     envVars:
       - key: NODE_ENV
         value: production
