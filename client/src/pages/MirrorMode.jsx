@@ -31,7 +31,7 @@ const MirrorMode = () => {
 
   const fetchAffirmations = async () => {
     try {
-      const response = await axios.get('/api/affirmations')
+      const response = await axios.get('/affirmations')
       setAffirmations(response.data)
     } catch (error) {
       console.error('Fetch affirmations error:', error)
@@ -43,7 +43,7 @@ const MirrorMode = () => {
   const markAsComplete = async () => {
     setMarking(true)
     try {
-      await axios.post('/api/manifestation/mark')
+      await axios.post('/manifestation/mark')
       navigate('/dashboard')
     } catch (error) {
       console.error('Mark complete error:', error)

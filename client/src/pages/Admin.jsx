@@ -22,7 +22,7 @@ const Admin = () => {
 
   const fetchAffirmations = async () => {
     try {
-      const response = await axios.get('/api/affirmations')
+      const response = await axios.get('/affirmations')
       setAffirmations(response.data)
     } catch (error) {
       console.error('Fetch affirmations error:', error)
@@ -69,7 +69,7 @@ const Admin = () => {
     setSaving(true)
     try {
       const maxOrder = Math.max(...affirmations.map(a => a.order), 0)
-      const response = await axios.post('/api/affirmations', {
+      const response = await axios.post('/affirmations', {
         text: newAffirmation.trim(),
         order: maxOrder + 1
       })
@@ -120,7 +120,7 @@ const Admin = () => {
       const targetAff = affirmations[targetIndex]
       
       // Call the reorder endpoint
-      await axios.put('/api/affirmations/reorder', {
+      await axios.put('/affirmations/reorder', {
         affirmation1Id: currentAff._id,
         affirmation2Id: targetAff._id
       })

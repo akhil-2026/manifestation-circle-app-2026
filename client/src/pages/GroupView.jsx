@@ -19,8 +19,8 @@ const GroupView = () => {
   const fetchGroupData = async () => {
     try {
       const [groupRes, threadRes] = await Promise.all([
-        axios.get('/api/group/details'),
-        axios.get('/api/group/thread')
+        axios.get('/group/details'),
+        axios.get('/group/thread')
       ])
       
       setGroupData(groupRes.data)
@@ -36,7 +36,7 @@ const GroupView = () => {
   const updateThread = async () => {
     setSaving(true)
     try {
-      await axios.put('/api/group/thread', { message: newThreadMessage })
+      await axios.put('/group/thread', { message: newThreadMessage })
       setThread(newThreadMessage)
       setEditingThread(false)
     } catch (error) {

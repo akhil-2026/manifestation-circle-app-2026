@@ -18,9 +18,9 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       const [statsRes, todayRes, threadRes] = await Promise.all([
-        axios.get('/api/stats/streak'),
-        axios.get('/api/manifestation/today'),
-        axios.get('/api/group/thread')
+        axios.get('/stats/streak'),
+        axios.get('/manifestation/today'),
+        axios.get('/group/thread')
       ])
       
       setStats(statsRes.data)

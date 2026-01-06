@@ -16,7 +16,7 @@ const Calendar = () => {
     try {
       const year = currentDate.getFullYear()
       const month = currentDate.getMonth() + 1
-      const response = await axios.get(`/api/manifestation/calendar/${year}/${month}`)
+      const response = await axios.get(`/manifestation/calendar/${year}/${month}`)
       setCalendarData(response.data.calendar)
     } catch (error) {
       console.error('Calendar fetch error:', error)
