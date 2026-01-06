@@ -1,0 +1,152 @@
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { X, Check } from 'lucide-react'
+
+const MirrorMode = () => {
+  const navigate = useNavigate()
+  const [affirmations, setAffirmations] = useState([])
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isComplete, setIsComplete] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [marking, setMarking] = useState(false)
+
+  useEffect(() => {
+    fetchAffirmations()
+  }, [])
+
+  useEffect(() => {
+    if (affirmations.length > 0 && currentIndex < affirmations.length) {
+      const timer = setTimeout(() => {
+        if (currentIndex < affirmations.length - 1) {
+          setCurrentIndex(currentIndex + 1)
+        } else {
+          setIsComplete(true)
+        }
+      }, 6000) // 6 seconds per affirmation
+
+      return () => clearTimeout(timer)
+    }
+  }, [currentIndex, affirmations.length])
+
+  const fetchAffirmations = async () => {
+    try {
+      const response = await axios.get('/api/affirmations')
+      setAffirmations(response.data)
+    } catch (error) {
+      console.error('Fetch affirmations error:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const markAsComplete = async () => {
+    setMarking(true)
+    try {
+      await axios.post('/api/manifestation/mark')
+      navigate('/dashboard')
+    } catch (error) {
+      console.error('Mark complete error:', error)
+      alert('Error marking as complete. Please try again.')
+    } finally {
+      setMarking(false)
+    }
+  }
+
+  const exitMirrorMode = () => {
+    navigate('/dashboard')
+  }
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black text-white flex flex-col">
+      {/* Exit Button */}
+      <button
+        onClick={exitMirrorMode}
+        className="absolute top-4 right-4 z-10 p-2 rounded-full bg-dark-800 hover:bg-dark-700 transition-colors"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {/* Progress Bar */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-dark-800">
+        <div 
+          className="h-full bg-purple-500 transition-all duration-1000 ease-linear"
+          style={{ 
+            width: `${((currentIndex + 1) / affirmations.length) * 100}%` 
+          }}
+        />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center px-8">
+        {!isComplete ? (
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="animate-fade-in">
+              <p className="text-4xl md:text-6xl font-light leading-relaxed text-center">
+                {affirmations[currentIndex]?.text}
+              </p>
+            </div>
+            
+            {/* Affirmation Counter */}
+            <div className="mt-12">
+              <p className="text-dark-400 text-lg">
+                {currentIndex + 1} of {affirmations.length}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center max-w-2xl mx-auto animate-fade-in">
+            <div className="mb-8">
+              <div className="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Check className="w-12 h-12 text-white" />
+              </div>
+              <h2 className="text-4xl font-bold mb-4">Practice Complete</h2>
+              <p className="text-xl text-dark-300 mb-8">
+                You've finished tonight's manifestation session
+              </p>
+              <p className="text-lg text-purple-300 italic mb-8">
+                "What you repeat daily becomes your reality."
+              </p>
+            </div>
+
+            <button
+              onClick={markAsComplete}
+              disabled={marking}
+              className="btn-primary text-xl px-8 py-4 mb-4"
+            >
+              {marking ? 'Marking Complete...' : '✔ I have completed today\'s manifestation'}
+            </button>
+
+            <div className="mt-6">
+              <button
+                onClick={exitMirrorMode}
+                className="text-dark-400 hover:text-white transition-colors"
+              >
+                Return to Dashboard
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Info */}
+      {!isComplete && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+          <p className="text-dark-500 text-sm">
+            Relax and let the words flow through you...
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default MirrorMode

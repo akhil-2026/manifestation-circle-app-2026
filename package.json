@@ -1,0 +1,27 @@
+{
+  "name": "manifestation-circle",
+  "version": "1.0.0",
+  "description": "A private MERN stack web application for 4 friends to practice daily manifestations",
+  "main": "server/server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "build:server": "cd server && npm install --production",
+    "start": "cd server && npm start",
+    "install-server": "cd server && npm install",
+    "install-client": "cd client && npm install",
+    "install-all": "npm run install-server && npm run install-client",
+    "seed": "cd server && node utils/seedData.js",
+    "test-db": "cd server && npm run test-db",
+    "deploy:build": "npm run build && npm run build:server",
+    "deploy:test": "npm run test-db && npm run build"
+  },
+  "keywords": ["manifestation", "habits", "mern", "react", "nodejs"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

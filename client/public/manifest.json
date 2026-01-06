@@ -1,0 +1,26 @@
+{
+  "name": "Manifestation Circle",
+  "short_name": "Manifestation",
+  "description": "Daily manifestation practice for our circle of friends",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["lifestyle", "health", "productivity"],
+  "lang": "en",
+  "dir": "ltr"
+}
