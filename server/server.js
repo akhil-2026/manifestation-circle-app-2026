@@ -29,12 +29,23 @@ const corsOptions = {
       process.env.CORS_ORIGIN,
       'http://localhost:5173', // Development
       'http://localhost:3000',  // Alternative dev port
-      'https://manifestation-circle-2026-app.vercel.app' // Hardcoded for debugging
+      'https://manifestation-circle-2026-app.vercel.app', // Hardcoded for debugging
+      'https://manifestation-circle-app-2026.vercel.app', // Alternative URL pattern
+      // Add more potential Vercel URLs
+      /^https:\/\/.*\.vercel\.app$/ // Allow any vercel.app subdomain for now
     ].filter(Boolean);
     
     console.log('🔒 Allowed origins:', allowedOrigins)
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Check string origins
+    if (allowedOrigins.some(allowed => {
+      if (typeof allowed === 'string') {
+        return allowed === origin;
+      } else if (allowed instanceof RegExp) {
+        return allowed.test(origin);
+      }
+      return false;
+    })) {
       console.log('✅ CORS allowed for:', origin)
       callback(null, true);
     } else {
