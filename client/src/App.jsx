@@ -10,6 +10,7 @@ import MirrorMode from './pages/MirrorMode'
 import Calendar from './pages/Calendar'
 import GroupView from './pages/GroupView'
 import Admin from './pages/Admin'
+import Profile from './pages/Profile'
 import LoadingSpinner from './components/LoadingSpinner'
 
 // Protected Route Component
@@ -85,6 +86,12 @@ function AppContent() {
             <ProtectedRoute>
               <Navbar />
               <Admin />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Navbar />
+              <Profile />
             </ProtectedRoute>
           } />
           

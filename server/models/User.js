@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema({
     enum: ['admin', 'member'],
     default: 'member'
   },
+  profilePicture: {
+    type: String,
+    default: null // Cloudinary URL
+  },
   joinedAt: {
     type: Date,
     default: Date.now

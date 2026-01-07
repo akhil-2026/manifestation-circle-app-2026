@@ -11,6 +11,7 @@ const manifestationRoutes = require('./routes/manifestation');
 const statsRoutes = require('./routes/stats');
 const groupRoutes = require('./routes/group');
 const affirmationRoutes = require('./routes/affirmation');
+const profileRoutes = require('./routes/profile');
 
 const app = express();
 
@@ -80,6 +81,7 @@ app.use('/api/manifestation', manifestationRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/group', groupRoutes);
 app.use('/api/affirmations', affirmationRoutes);
+app.use('/api/profile', profileRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

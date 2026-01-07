@@ -70,6 +70,12 @@ const Navbar = () => {
                 Admin
               </span>
             )}
+            <Link
+              to="/profile"
+              className="text-dark-300 hover:text-white transition-colors duration-200 text-sm"
+            >
+              Profile
+            </Link>
             <button
               onClick={logout}
               className="flex items-center space-x-2 text-dark-300 hover:text-white transition-colors duration-200"
@@ -103,16 +109,25 @@ const Navbar = () => {
               <span className="text-sm text-dark-300">
                 Welcome, {user?.name}
               </span>
-              <button
-                onClick={() => {
-                  logout()
-                  closeMobileMenu()
-                }}
-                className="flex items-center space-x-2 text-dark-300 hover:text-white transition-colors duration-200 px-2 py-1"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
+              <div className="flex items-center space-x-3">
+                <Link
+                  to="/profile"
+                  onClick={closeMobileMenu}
+                  className="text-dark-300 hover:text-white transition-colors duration-200 text-sm"
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    logout()
+                    closeMobileMenu()
+                  }}
+                  className="flex items-center space-x-2 text-dark-300 hover:text-white transition-colors duration-200 px-2 py-1"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
             
             {/* Navigation Links */}

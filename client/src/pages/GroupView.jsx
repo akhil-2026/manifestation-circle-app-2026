@@ -129,10 +129,18 @@ const GroupView = () => {
           <div key={member.id} className="card p-4 sm:p-6">
             <div className="text-center">
               {/* Avatar */}
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <span className="text-white text-lg sm:text-xl font-bold">
-                  {member.name.charAt(0).toUpperCase()}
-                </span>
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                {member.profilePicture ? (
+                  <img
+                    src={member.profilePicture}
+                    alt={`${member.name}'s profile`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white text-lg sm:text-xl font-bold">
+                    {member.name.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
 
               {/* Name and Role */}

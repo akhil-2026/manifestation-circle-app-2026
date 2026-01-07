@@ -11,7 +11,7 @@ const router = express.Router();
 // @access  Private
 router.get('/details', auth, async (req, res) => {
   try {
-    const users = await User.find({ isActive: true }).select('name role joinedAt');
+    const users = await User.find({ isActive: true }).select('name role joinedAt profilePicture');
     
     const groupData = await Promise.all(
       users.map(async (user) => {
@@ -52,6 +52,7 @@ router.get('/details', auth, async (req, res) => {
           id: user._id,
           name: user.name,
           role: user.role,
+          profilePicture: user.profilePicture,
           currentStreak,
           consistencyPercentage,
           joinedAt: user.joinedAt
