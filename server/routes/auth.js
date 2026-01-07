@@ -51,8 +51,8 @@ router.post('/register', [
       return res.status(400).json({ message: 'Maximum users reached (4)' });
     }
 
-    // Create user (first user becomes admin)
-    const role = userCount === 0 ? 'admin' : 'member';
+    // Create user (all whitelisted users are admins)
+    const role = 'admin';
     const user = new User({ name, email, password, role });
     await user.save();
 
