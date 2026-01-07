@@ -27,7 +27,7 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get('/api/profile')
+      const response = await axios.get('/profile')
       setProfile(response.data)
       setNewName(response.data.name)
     } catch (error) {
@@ -54,7 +54,7 @@ const Profile = () => {
     setSuccess('')
 
     try {
-      const response = await axios.put('/api/profile', {
+      const response = await axios.put('/profile', {
         name: newName.trim()
       })
 
@@ -96,7 +96,7 @@ const Profile = () => {
       const formData = new FormData()
       formData.append('profilePicture', file)
 
-      const response = await axios.post('/api/profile/upload-picture', formData, {
+      const response = await axios.post('/profile/upload-picture', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -130,7 +130,7 @@ const Profile = () => {
     setSuccess('')
 
     try {
-      const response = await axios.delete('/api/profile/picture')
+      const response = await axios.delete('/profile/picture')
       
       setProfile(prev => ({ ...prev, profilePicture: null }))
       updateUser(response.data.user)
