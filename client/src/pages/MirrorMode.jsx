@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { X, Check } from 'lucide-react'
@@ -85,31 +85,31 @@ const MirrorMode = () => {
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-8">
         {!isComplete ? (
-          <div className="text-center max-w-4xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto px-4">
             <div className="animate-fade-in">
-              <p className="text-4xl md:text-6xl font-light leading-relaxed text-center">
+              <p className="text-2xl sm:text-4xl md:text-6xl font-light leading-relaxed text-center px-2">
                 {affirmations[currentIndex]?.text}
               </p>
             </div>
             
             {/* Affirmation Counter */}
-            <div className="mt-12">
-              <p className="text-dark-400 text-lg">
+            <div className="mt-8 sm:mt-12">
+              <p className="text-dark-400 text-base sm:text-lg">
                 {currentIndex + 1} of {affirmations.length}
               </p>
             </div>
           </div>
         ) : (
-          <div className="text-center max-w-2xl mx-auto animate-fade-in">
-            <div className="mb-8">
-              <div className="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Check className="w-12 h-12 text-white" />
+          <div className="text-center max-w-2xl mx-auto animate-fade-in px-4">
+            <div className="mb-6 sm:mb-8">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <Check className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
               </div>
-              <h2 className="text-4xl font-bold mb-4">Practice Complete</h2>
-              <p className="text-xl text-dark-300 mb-8">
+              <h2 className="text-2xl sm:text-4xl font-bold mb-3 sm:mb-4">Practice Complete</h2>
+              <p className="text-lg sm:text-xl text-dark-300 mb-6 sm:mb-8">
                 You've finished tonight's manifestation session
               </p>
-              <p className="text-lg text-purple-300 italic mb-8">
+              <p className="text-base sm:text-lg text-purple-300 italic mb-6 sm:mb-8">
                 "What you repeat daily becomes your reality."
               </p>
             </div>
@@ -117,22 +117,22 @@ const MirrorMode = () => {
             <button
               onClick={markAsComplete}
               disabled={marking}
-              className="btn-primary text-xl px-8 py-4 mb-4 flex items-center justify-center"
+              className="btn-primary text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4 mb-4 flex items-center justify-center w-full sm:w-auto"
             >
               {marking ? (
                 <LoadingSpinner variant="button" />
               ) : (
                 <>
-                  <Check className="w-6 h-6 mr-2" />
+                  <Check className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
                   I have completed today's manifestation
                 </>
               )}
             </button>
 
-            <div className="mt-6">
+            <div className="mt-4 sm:mt-6">
               <button
                 onClick={exitMirrorMode}
-                className="text-dark-400 hover:text-white transition-colors"
+                className="text-dark-400 hover:text-white transition-colors text-sm sm:text-base"
               >
                 Return to Dashboard
               </button>
@@ -143,8 +143,8 @@ const MirrorMode = () => {
 
       {/* Bottom Info */}
       {!isComplete && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-          <p className="text-dark-500 text-sm">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4">
+          <p className="text-dark-500 text-xs sm:text-sm text-center">
             Relax and let the words flow through you...
           </p>
         </div>

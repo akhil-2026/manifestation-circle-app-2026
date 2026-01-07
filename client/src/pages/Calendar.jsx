@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react'
 
@@ -108,27 +108,27 @@ const Calendar = () => {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
         <div className="flex items-center space-x-3">
-          <CalendarIcon className="w-8 h-8 text-purple-500" />
-          <h1 className="text-3xl font-bold text-white">Manifestation Calendar</h1>
+          <CalendarIcon className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">Manifestation Calendar</h1>
         </div>
       </div>
 
       {/* Calendar */}
-      <div className="card">
+      <div className="card p-4 sm:p-6">
         {/* Month Navigation */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <button
             onClick={() => navigateMonth(-1)}
             className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 transition-colors"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           
-          <h2 className="text-2xl font-bold text-white">
+          <h2 className="text-lg sm:text-2xl font-bold text-white text-center">
             {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
           </h2>
           
@@ -136,47 +136,48 @@ const Calendar = () => {
             onClick={() => navigateMonth(1)}
             className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 transition-colors"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
         {/* Day Headers */}
-        <div className="grid grid-cols-7 gap-2 mb-4">
+        <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 sm:mb-4">
           {dayNames.map(day => (
-            <div key={day} className="text-center text-dark-400 font-medium py-2">
-              {day}
+            <div key={day} className="text-center text-dark-400 font-medium py-1 sm:py-2 text-xs sm:text-sm">
+              <span className="hidden sm:inline">{day}</span>
+              <span className="sm:hidden">{day.slice(0, 1)}</span>
             </div>
           ))}
         </div>
 
         {/* Calendar Grid */}
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+          <div className="flex justify-center py-8 sm:py-12">
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-purple-500"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2">
             {renderCalendarDays()}
           </div>
         )}
 
         {/* Legend */}
-        <div className="flex flex-wrap justify-center gap-6 mt-8 pt-6 border-t border-dark-700">
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-dark-700">
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-green-600 rounded"></div>
-            <span className="text-sm text-dark-300">Completed</span>
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-600 rounded"></div>
+            <span className="text-xs sm:text-sm text-dark-300">Completed</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-red-600 rounded"></div>
-            <span className="text-sm text-dark-300">Missed</span>
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-600 rounded"></div>
+            <span className="text-xs sm:text-sm text-dark-300">Missed</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-dark-800 rounded"></div>
-            <span className="text-sm text-dark-300">No Data</span>
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-dark-800 rounded"></div>
+            <span className="text-xs sm:text-sm text-dark-300">No Data</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-dark-800 rounded ring-2 ring-purple-500"></div>
-            <span className="text-sm text-dark-300">Today</span>
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-dark-800 rounded ring-2 ring-purple-500"></div>
+            <span className="text-xs sm:text-sm text-dark-300">Today</span>
           </div>
         </div>
       </div>

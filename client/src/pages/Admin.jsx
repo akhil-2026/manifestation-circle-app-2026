@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { Settings, Plus, Edit3, Save, X, GripVertical, ChevronUp, ChevronDown } from 'lucide-react'
@@ -169,12 +169,12 @@ const Admin = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
         <div className="flex items-center space-x-3">
-          <Settings className="w-8 h-8 text-purple-500" />
-          <h1 className="text-3xl font-bold text-white">Admin Panel</h1>
+          <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">Admin Panel</h1>
           {saving && (
             <div className="flex items-center space-x-2 text-purple-400">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400"></div>
@@ -185,7 +185,7 @@ const Admin = () => {
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           disabled={saving}
-          className="btn-primary flex items-center space-x-2"
+          className="btn-primary flex items-center space-x-2 text-sm sm:text-base w-full sm:w-auto justify-center"
         >
           <Plus className="w-4 h-4" />
           <span>Add Affirmation</span>
@@ -194,21 +194,21 @@ const Admin = () => {
 
       {/* Add New Affirmation Form */}
       {showAddForm && (
-        <div className="card mb-8">
-          <h2 className="text-xl font-bold text-white mb-4">Add New Affirmation</h2>
+        <div className="card mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-bold text-white mb-4">Add New Affirmation</h2>
           <div className="space-y-4">
             <textarea
               value={newAffirmation}
               onChange={(e) => setNewAffirmation(e.target.value)}
-              className="input-field w-full h-24 resize-none"
+              className="input-field w-full h-20 sm:h-24 resize-none text-sm sm:text-base"
               placeholder="Enter new affirmation..."
               maxLength={200}
             />
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <button
                 onClick={addAffirmation}
                 disabled={saving || !newAffirmation.trim()}
-                className="btn-primary flex items-center space-x-2"
+                className="btn-primary flex items-center justify-center space-x-2 text-sm sm:text-base"
               >
                 <Save className="w-4 h-4" />
                 <span>{saving ? 'Adding...' : 'Add Affirmation'}</span>
@@ -218,7 +218,7 @@ const Admin = () => {
                   setShowAddForm(false)
                   setNewAffirmation('')
                 }}
-                className="btn-secondary flex items-center space-x-2"
+                className="btn-secondary flex items-center justify-center space-x-2 text-sm sm:text-base"
               >
                 <X className="w-4 h-4" />
                 <span>Cancel</span>
@@ -230,15 +230,15 @@ const Admin = () => {
 
       {/* Affirmations List */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-white mb-4">
+        <h2 className="text-lg sm:text-xl font-bold text-white mb-4">
           Manage Affirmations ({affirmations.length})
         </h2>
         
         {affirmations.map((affirmation, index) => (
-          <div key={affirmation._id} className="card">
-            <div className="flex items-start space-x-4">
-              {/* Order Controls */}
-              <div className="flex flex-col space-y-1 pt-2">
+          <div key={affirmation._id} className="card p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-4">
+              {/* Order Controls - Mobile: Horizontal, Desktop: Vertical */}
+              <div className="flex sm:flex-col space-x-2 sm:space-x-0 sm:space-y-1 sm:pt-2 w-full sm:w-auto justify-center sm:justify-start">
                 <button
                   onClick={() => moveAffirmation(affirmation._id, 'up')}
                   disabled={index === 0 || saving}
@@ -247,7 +247,9 @@ const Admin = () => {
                 >
                   <ChevronUp className="w-4 h-4" />
                 </button>
-                <GripVertical className="w-4 h-4 text-dark-500 mx-auto" />
+                <div className="flex items-center justify-center">
+                  <GripVertical className="w-4 h-4 text-dark-500" />
+                </div>
                 <button
                   onClick={() => moveAffirmation(affirmation._id, 'down')}
                   disabled={index === affirmations.length - 1 || saving}
@@ -259,32 +261,32 @@ const Admin = () => {
               </div>
 
               {/* Order Number */}
-              <div className="flex-shrink-0 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+              <div className="flex-shrink-0 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm mx-auto sm:mx-0">
                 {affirmation.order}
               </div>
 
               {/* Content */}
-              <div className="flex-1">
+              <div className="flex-1 w-full">
                 {editingId === affirmation._id ? (
                   <div className="space-y-3">
                     <textarea
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
-                      className="input-field w-full h-20 resize-none"
+                      className="input-field w-full h-16 sm:h-20 resize-none text-sm sm:text-base"
                       maxLength={200}
                     />
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                       <button
                         onClick={() => saveEdit(affirmation._id)}
                         disabled={saving}
-                        className="btn-primary flex items-center space-x-2 text-sm"
+                        className="btn-primary flex items-center justify-center space-x-2 text-sm"
                       >
                         <Save className="w-3 h-3" />
                         <span>{saving ? 'Saving...' : 'Save'}</span>
                       </button>
                       <button
                         onClick={cancelEdit}
-                        className="btn-secondary flex items-center space-x-2 text-sm"
+                        className="btn-secondary flex items-center justify-center space-x-2 text-sm"
                       >
                         <X className="w-3 h-3" />
                         <span>Cancel</span>
@@ -293,10 +295,10 @@ const Admin = () => {
                   </div>
                 ) : (
                   <div>
-                    <p className={`text-lg ${affirmation.isActive ? 'text-white' : 'text-dark-400'}`}>
+                    <p className={`text-base sm:text-lg leading-relaxed ${affirmation.isActive ? 'text-white' : 'text-dark-400'}`}>
                       {affirmation.text}
                     </p>
-                    <div className="flex items-center space-x-4 mt-3">
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-3">
                       <button
                         onClick={() => startEdit(affirmation)}
                         className="text-blue-400 hover:text-blue-300 flex items-center space-x-1 text-sm"
@@ -331,8 +333,8 @@ const Admin = () => {
       </div>
 
       {/* Instructions */}
-      <div className="card mt-8">
-        <h3 className="text-lg font-bold text-white mb-3">Instructions</h3>
+      <div className="card mt-6 sm:mt-8">
+        <h3 className="text-base sm:text-lg font-bold text-white mb-3">Instructions</h3>
         <ul className="text-dark-300 space-y-2 text-sm">
           <li>• Use the arrows to reorder affirmations</li>
           <li>• Click "Edit" to modify affirmation text</li>
