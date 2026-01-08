@@ -17,8 +17,8 @@ const Navbar = () => {
     { path: '/group', icon: Users, label: 'Group' }
   ]
 
-  // Add admin link for admin users
-  if (user?.role === 'admin') {
+  // Add admin link for admin users or super admin
+  if (user?.role === 'admin' || user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL) {
     navItems.push({ path: '/admin', icon: Settings, label: 'Admin' })
   }
 
@@ -90,11 +90,15 @@ const Navbar = () => {
             <span className="text-sm text-dark-300 truncate max-w-32">
               {user?.name}
             </span>
-            {user?.role === 'admin' && (
+            {user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL ? (
+              <span className="px-2 py-1 text-xs bg-red-600 text-white rounded-full">
+                Owner
+              </span>
+            ) : user?.role === 'admin' ? (
               <span className="px-2 py-1 text-xs bg-purple-600 text-white rounded-full">
                 Admin
               </span>
-            )}
+            ) : null}
             <Link
               to="/profile"
               className="text-dark-300 hover:text-white transition-colors duration-200 text-sm"
@@ -112,11 +116,15 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
-            {user?.role === 'admin' && (
+            {user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL ? (
+              <span className="px-2 py-1 text-xs bg-red-600 text-white rounded-full">
+                Owner
+              </span>
+            ) : user?.role === 'admin' ? (
               <span className="px-2 py-1 text-xs bg-purple-600 text-white rounded-full">
                 Admin
               </span>
-            )}
+            ) : null}
             <button
               onClick={handleMobileMenuToggle}
               className="text-dark-300 hover:text-white p-2"

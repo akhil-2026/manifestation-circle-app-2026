@@ -97,7 +97,7 @@ const GroupView = () => {
         <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           <DateTime variant="compact" showSeconds={false} />
           <div className="text-dark-400 text-sm sm:text-base">
-            {groupData.totalMembers}/4 members
+            {groupData.members?.filter(member => member.email !== import.meta.env.VITE_SUPER_ADMIN_EMAIL).length || 0}/4 members
           </div>
         </div>
       </div>
@@ -106,7 +106,7 @@ const GroupView = () => {
       <div className="card mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 space-y-2 sm:space-y-0">
           <h2 className="text-lg sm:text-xl font-bold text-white">Circle Message</h2>
-          {user?.role === 'admin' && !editingThread && (
+          {(user?.role === 'admin' || user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL) && !editingThread && (
             <button
               onClick={() => setEditingThread(true)}
               className="btn-secondary flex items-center space-x-2 text-sm w-full sm:w-auto justify-center"
@@ -154,7 +154,9 @@ const GroupView = () => {
 
       {/* Members Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {groupData.members.map((member) => (
+        {groupData.members
+          .filter(member => member.email !== import.meta.env.VITE_SUPER_ADMIN_EMAIL)
+          .map((member) => (
           <div key={member.id} className="card p-4 sm:p-6">
             <div className="text-center">
               {/* Avatar */}
@@ -232,7 +234,7 @@ const GroupView = () => {
         ))}
 
         {/* Empty slots */}
-        {Array.from({ length: 4 - groupData.totalMembers }).map((_, index) => (
+        {Array.from({ length: 4 - groupData.members.filter(member => member.email !== import.meta.env.VITE_SUPER_ADMIN_EMAIL).length }).map((_, index) => (
           <div key={`empty-${index}`} className="card border-dashed border-dark-600 p-4 sm:p-6">
             <div className="text-center py-6 sm:py-8">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-dark-800 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">

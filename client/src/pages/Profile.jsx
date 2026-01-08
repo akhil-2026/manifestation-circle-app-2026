@@ -335,11 +335,22 @@ const Profile = () => {
               Role
             </label>
             <div className="flex items-center space-x-2">
-              <span className="text-white text-sm sm:text-base capitalize">{user?.role}</span>
-              {user?.role === 'admin' && (
-                <span className="px-2 py-1 text-xs bg-purple-600 text-white rounded-full">
-                  Admin
-                </span>
+              {user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL ? (
+                <>
+                  <span className="text-white text-sm sm:text-base">Super Admin</span>
+                  <span className="px-2 py-1 text-xs bg-red-600 text-white rounded-full">
+                    Owner
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-white text-sm sm:text-base capitalize">{user?.role}</span>
+                  {user?.role === 'admin' && (
+                    <span className="px-2 py-1 text-xs bg-purple-600 text-white rounded-full">
+                      Admin
+                    </span>
+                  )}
+                </>
               )}
             </div>
           </div>

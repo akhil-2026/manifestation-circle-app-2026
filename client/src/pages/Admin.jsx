@@ -18,7 +18,7 @@ const Admin = () => {
   const [showAddForm, setShowAddForm] = useState(false)
 
   useEffect(() => {
-    if (user?.role !== 'admin') {
+    if (user?.role !== 'admin' && user?.email !== import.meta.env.VITE_SUPER_ADMIN_EMAIL) {
       return
     }
     fetchAffirmations()
@@ -154,7 +154,7 @@ const Admin = () => {
     }
   }
 
-  if (user?.role !== 'admin') {
+  if (user?.role !== 'admin' && user?.email !== import.meta.env.VITE_SUPER_ADMIN_EMAIL) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">

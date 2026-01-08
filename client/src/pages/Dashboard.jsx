@@ -149,7 +149,7 @@ const Dashboard = () => {
               {thread || "No message from the circle yet..."}
             </p>
           </div>
-          {user?.role === 'admin' && (
+          {user?.role === 'admin' || user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL ? (
             <p className="text-xs sm:text-sm text-dark-400">
               As admin, you can update this message in the Group section
             </p>
@@ -179,7 +179,7 @@ const Dashboard = () => {
           </div>
         </Link>
 
-        {user?.role === 'admin' ? (
+          {user?.role === 'admin' || user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL ? (
           <Link to="/admin" className="card hover:bg-dark-800 transition-colors p-4 sm:p-6 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center space-x-3">
               <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500 flex-shrink-0" />

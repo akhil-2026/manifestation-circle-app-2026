@@ -27,7 +27,9 @@ const auth = async (req, res, next) => {
 
 // Admin only middleware
 const adminOnly = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
+  const isSuperAdmin = process.env.SUPER_ADMIN_EMAIL && req.user.email === process.env.SUPER_ADMIN_EMAIL;
+  
+  if (req.user && (req.user.role === 'admin' || isSuperAdmin)) {
     next();
   } else {
     res.status(403).json({ message: 'Admin access required' });

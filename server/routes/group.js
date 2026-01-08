@@ -12,7 +12,7 @@ const router = express.Router();
 // @access  Private
 router.get('/details', auth, async (req, res) => {
   try {
-    const users = await User.find({ isActive: true }).select('name role joinedAt profilePicture');
+    const users = await User.find({ isActive: true }).select('name email role joinedAt profilePicture');
     
     // Filter out super admin from group view
     const filteredUsers = filterSuperAdmin(users);
@@ -55,6 +55,7 @@ router.get('/details', auth, async (req, res) => {
         return {
           id: user._id,
           name: user.name,
+          email: user.email,
           role: user.role,
           profilePicture: user.profilePicture,
           currentStreak,
