@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { Home, Calendar, Users, LogOut, Moon, Settings, Menu, X, Smartphone } from 'lucide-react'
+import { Home, Calendar, Users, LogOut, Moon, Settings, Menu, X, Smartphone, Shield } from 'lucide-react'
 import DateTime from '../components/DateTime'
 import { usePWA } from '../hooks/usePWA'
 
@@ -10,28 +10,38 @@ const Navbar = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [keySequence, setKeySequence] = useState('')
+  const [hasSuperAdminAccess, setHasSuperAdminAccess] = useState(false)
   const { isInstalled, isOnline } = usePWA()
 
-  // Hidden super admin access via key sequence
+  // Check if user has super admin access
   useEffect(() => {
-    const handleKeyPress = (e) => {
-      const newSequence = keySequence + e.key.toLowerCase()
-      setKeySequence(newSequence)
-      
-      // Check for super admin sequence: "superadmin"
-      if (newSequence.includes('superadmin')) {
-        setKeySequence('')
-        navigate('/super-admin')
+    const checkSuperAdminAccess = async () => {
+      if (!user) {
+        setHasSuperAdminAccess(false)
+        return
       }
-      
-      // Reset sequence after 3 seconds of inactivity
-      setTimeout(() => setKeySequence(''), 3000)
+
+      try {
+        const token = localStorage.getItem('token')
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/super-admin/check-access`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          setHasSuperAdminAccess(data.hasAccess)
+        } else {
+          setHasSuperAdminAccess(false)
+        }
+      } catch (error) {
+        setHasSuperAdminAccess(false)
+      }
     }
 
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [keySequence, navigate])
+    checkSuperAdminAccess()
+  }, [user])
 
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -42,6 +52,11 @@ const Navbar = () => {
   // Add admin link for admin users
   if (user?.role === 'admin') {
     navItems.push({ path: '/admin', icon: Settings, label: 'Admin' })
+  }
+
+  // Add super admin link for super admin user (completely hidden from others)
+  if (hasSuperAdminAccess) {
+    navItems.push({ path: '/super-admin', icon: Shield, label: 'Super Admin' })
   }
 
   const isActive = (path) => location.pathname === path
