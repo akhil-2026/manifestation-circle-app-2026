@@ -16,7 +16,10 @@ const Navbar = () => {
   // Check if user has super admin access
   useEffect(() => {
     const checkSuperAdminAccess = async () => {
+      console.log('🔍 Super Admin useEffect triggered, user:', user?.email);
+      
       if (!user) {
+        console.log('🔍 No user found, setting hasAccess to false');
         setHasSuperAdminAccess(false)
         return
       }
@@ -25,6 +28,7 @@ const Navbar = () => {
         const token = localStorage.getItem('token')
         console.log('🔍 Checking Super Admin access for:', user.email)
         console.log('🔍 API URL:', import.meta.env.VITE_API_URL)
+        console.log('🔍 Token exists:', !!token)
         
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/super-admin/check-access`, {
           headers: {
