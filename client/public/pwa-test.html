@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Installation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0f172a;
+            color: white;
+        }
+        .test-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 5px;
+        }
+        .success { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+        .error { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .warning { border-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        button {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #6d28d9; }
+        #results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🌙 PWA Installation Test</h1>
+    <p>This page will help diagnose PWA installation issues.</p>
+    
+    <button onclick="runTests()">🔍 Run PWA Tests</button>
+    <button onclick="testInstall()">📱 Test Install Prompt</button>
+    <button onclick="checkManifest()">📋 Check Manifest</button>
+    
+    <div id="results"></div>
+    
+    <script>
+        let deferredPrompt;
+        
+        // Listen for install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('📱 Install prompt available');
+            e.preventDefault();
+            deferredPrompt = e;
+            addResult('Install prompt detected!', 'success');
+        });
+        
+        // Listen for app installed
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ App installed');
+            addResult('App installed successfully!', 'success');
+        });
+        
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-item ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+        
+        function runTests() {
+            document.getElementById('results').innerHTML = '';
+            addResult('🔍 Running PWA Tests...', 'info');
+            
+            // Test 1: HTTPS
+            if (location.protocol === 'https:' || location.hostname === 'localhost') {
+                addResult('✅ HTTPS: Secure connection detected', 'success');
+            } else {
+                addResult('❌ HTTPS: Insecure connection (PWA requires HTTPS)', 'error');
+            }
+            
+            // Test 2: Service Worker Support
+            if ('serviceWorker' in navigator) {
+                addResult('✅ Service Worker: Browser supports service workers', 'success');
+                
+                // Check if service worker is registered
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    if (registrations.length > 0) {
+                        addResult(`✅ Service Worker: ${registrations.length} worker(s) registered`, 'success');
+                    } else {
+                        addResult('⚠️ Service Worker: No workers registered yet', 'warning');
+                    }
+                });
+            } else {
+                addResult('❌ Service Worker: Not supported in this browser', 'error');
+            }
+            
+            // Test 3: Manifest
+            const manifestLink = document.querySelector('link[rel="manifest"]');
+            if (manifestLink) {
+                addResult('✅ Manifest: Link found in HTML', 'success');
+                
+                // Try to fetch manifest
+                fetch(manifestLink.href)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error(`HTTP ${response.status}`);
+                    })
+                    .then(manifest => {
+                        addResult(`✅ Manifest: Successfully loaded (${manifest.name})`, 'success');
+                        addResult(`📱 Display: ${manifest.display}`, 'info');
+                        addResult(`🎨 Theme: ${manifest.theme_color}`, 'info');
+                        addResult(`📐 Icons: ${manifest.icons.length} icon(s) defined`, 'info');
+                    })
+                    .catch(error => {
+                        addResult(`❌ Manifest: Failed to load (${error.message})`, 'error');
+                    });
+            } else {
+                addResult('❌ Manifest: No manifest link found in HTML', 'error');
+            }
+            
+            // Test 4: Install Criteria
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                addResult('✅ Already installed as PWA', 'success');
+            } else {
+                addResult('📱 Not installed - can be installed as PWA', 'info');
+            }
+            
+            // Test 5: Browser Support
+            const userAgent = navigator.userAgent;
+            if (userAgent.includes('Chrome')) {
+                addResult('✅ Browser: Chrome (Full PWA support)', 'success');
+            } else if (userAgent.includes('Safari')) {
+                addResult('⚠️ Browser: Safari (Manual installation only)', 'warning');
+            } else if (userAgent.includes('Firefox')) {
+                addResult('⚠️ Browser: Firefox (Limited PWA support)', 'warning');
+            } else {
+                addResult('❓ Browser: Unknown PWA support', 'warning');
+            }
+        }
+        
+        function testInstall() {
+            if (deferredPrompt) {
+                addResult('📱 Showing install prompt...', 'info');
+                deferredPrompt.prompt();
+                
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        addResult('✅ User accepted install prompt', 'success');
+                    } else {
+                        addResult('❌ User dismissed install prompt', 'warning');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                addResult('❌ No install prompt available', 'error');
+                addResult('💡 Try: Browser menu → "Add to Home Screen"', 'info');
+            }
+        }
+        
+        function checkManifest() {
+            addResult('📋 Checking manifest accessibility...', 'info');
+            
+            const manifestUrl = '/manifest.json';
+            fetch(manifestUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(manifest => {
+                    addResult('✅ Manifest is accessible', 'success');
+                    addResult(`📱 App Name: ${manifest.name}`, 'info');
+                    addResult(`🏷️ Short Name: ${manifest.short_name}`, 'info');
+                    addResult(`🖥️ Display Mode: ${manifest.display}`, 'info');
+                    addResult(`🎯 Start URL: ${manifest.start_url}`, 'info');
+                    addResult(`🎨 Theme Color: ${manifest.theme_color}`, 'info');
+                    addResult(`📐 Orientation: ${manifest.orientation}`, 'info');
+                    
+                    // Check icons
+                    manifest.icons.forEach((icon, index) => {
+                        addResult(`🖼️ Icon ${index + 1}: ${icon.sizes} (${icon.type})`, 'info');
+                    });
+                })
+                .catch(error => {
+                    addResult(`❌ Manifest error: ${error.message}`, 'error');
+                });
+        }
+        
+        // Auto-run tests on load
+        setTimeout(runTests, 1000);
+    </script>
+</body>
+</html>
