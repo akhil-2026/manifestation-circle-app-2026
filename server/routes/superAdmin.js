@@ -345,7 +345,9 @@ router.get('/system/health', superAdmin, async (req, res) => {
       status: 'healthy',
       database: dbStatus,
       timestamp: new Date().toISOString(),
-      superAdminConfigured: !!process.env.SUPER_ADMIN_EMAIL
+      superAdminConfigured: !!process.env.SUPER_ADMIN_EMAIL,
+      userEmail: req.user.email,
+      superAdminEmail: process.env.SUPER_ADMIN_EMAIL ? 'configured' : 'not configured'
     });
   } catch (error) {
     res.status(500).json({
@@ -353,6 +355,23 @@ router.get('/system/health', superAdmin, async (req, res) => {
       error: error.message,
       timestamp: new Date().toISOString()
     });
+  }
+});
+
+// Debug endpoint to check super admin status
+router.get('/debug/status', auth, async (req, res) => {
+  try {
+    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+    const isSuper = req.user.email === superAdminEmail;
+    
+    res.json({
+      userEmail: req.user.email,
+      superAdminConfigured: !!superAdminEmail,
+      isSuperAdmin: isSuper,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

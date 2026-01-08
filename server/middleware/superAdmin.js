@@ -17,16 +17,23 @@ const superAdmin = async (req, res, next) => {
     // Get super admin email from environment (server-side only)
     const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
     
+    console.log('🔍 Super Admin Check:');
+    console.log('- User email:', req.user.email);
+    console.log('- Super admin email from env:', superAdminEmail);
+    console.log('- Match:', req.user.email === superAdminEmail);
+    
     if (!superAdminEmail) {
-      console.error('SUPER_ADMIN_EMAIL not configured in environment variables');
+      console.error('❌ SUPER_ADMIN_EMAIL not configured in environment variables');
       return res.status(500).json({ message: 'Server configuration error' });
     }
 
     // Check if authenticated user is the super admin
     if (req.user.email !== superAdminEmail) {
+      console.log('❌ Access denied - not super admin');
       return res.status(403).json({ message: 'Access denied' });
     }
 
+    console.log('✅ Super admin access granted');
     // Add super admin flag to request (never sent to frontend)
     req.isSuperAdmin = true;
     next();
