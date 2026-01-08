@@ -5,6 +5,10 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// Initialize Firebase Admin SDK
+const { initializeFirebase } = require('./config/firebase');
+initializeFirebase();
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const manifestationRoutes = require('./routes/manifestation');
@@ -12,6 +16,7 @@ const statsRoutes = require('./routes/stats');
 const groupRoutes = require('./routes/group');
 const affirmationRoutes = require('./routes/affirmation');
 const profileRoutes = require('./routes/profile');
+const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 
@@ -82,6 +87,7 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/group', groupRoutes);
 app.use('/api/affirmations', affirmationRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

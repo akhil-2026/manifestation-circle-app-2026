@@ -6,6 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import DateTime from '../components/DateTime'
 import Alert from '../components/Alert'
 import useAlert from '../hooks/useAlert'
+import NotificationSettings from '../components/NotificationSettings'
 
 const Profile = () => {
   const { user, updateUser } = useAuth()
@@ -358,6 +359,9 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* Notification Settings */}
+      <NotificationSettings />
+
       {/* Tips */}
       <div className="card mt-6 sm:mt-8">
         <h3 className="text-base sm:text-lg font-bold text-white mb-3">Profile Tips</h3>
@@ -366,6 +370,7 @@ const Profile = () => {
           <li>• Your name will be visible to other circle members</li>
           <li>• Profile pictures are automatically optimized and resized</li>
           <li>• You can update your information anytime</li>
+          <li>• Enable notifications to get daily manifestation reminders</li>
         </ul>
       </div>
 

@@ -13,6 +13,7 @@ import Admin from './pages/Admin'
 import Profile from './pages/Profile'
 import UserCalendar from './components/UserCalendar'
 import LoadingSpinner from './components/LoadingSpinner'
+import NotificationPrompt from './components/NotificationPrompt'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -37,7 +38,7 @@ const PublicRoute = ({ children }) => {
 }
 
 function AppContent() {
-  const { loading } = useAuth()
+  const { loading, user } = useAuth()
 
   if (loading) {
     return <LoadingSpinner />
@@ -77,6 +78,12 @@ function AppContent() {
               <Calendar />
             </ProtectedRoute>
           } />
+          <Route path="/calendar/:userId" element={
+            <ProtectedRoute>
+              <Navbar />
+              <UserCalendar />
+            </ProtectedRoute>
+          } />
           <Route path="/group" element={
             <ProtectedRoute>
               <Navbar />
@@ -100,6 +107,8 @@ function AppContent() {
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
+        {/* Show notification prompt only for authenticated users */}
+        {user && <NotificationPrompt />}
       </Router>
     </div>
   )

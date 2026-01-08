@@ -41,6 +41,10 @@ const userSchema = new mongoose.Schema({
   reminderEnabled: {
     type: Boolean,
     default: true
+  },
+  fcmToken: {
+    type: String,
+    default: null // Firebase Cloud Messaging token for push notifications
   }
 }, {
   timestamps: true

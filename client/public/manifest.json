@@ -30,5 +30,7 @@
   "lang": "en",
   "dir": "ltr",
   "scope": "/",
-  "id": "manifestation-circle-app"
+  "id": "manifestation-circle-app",
+  "permissions": ["notifications"],
+  "gcm_sender_id": "103953800507"
 }
