@@ -4,9 +4,12 @@ import { useAuth } from '../context/AuthContext'
 import { Users, Crown, Flame, Target, Edit3, Save, X, Calendar } from 'lucide-react'
 import DateTime from '../components/DateTime'
 import UserCalendar from '../components/UserCalendar'
+import Alert from '../components/Alert'
+import useAlert from '../hooks/useAlert'
 
 const GroupView = () => {
   const { user } = useAuth()
+  const { alert, showAlert, hideAlert, showSuccess, showError } = useAlert()
   const [groupData, setGroupData] = useState({ members: [] })
   const [thread, setThread] = useState('')
   const [editingThread, setEditingThread] = useState(false)
@@ -42,9 +45,10 @@ const GroupView = () => {
       await axios.put('/group/thread', { message: newThreadMessage })
       setThread(newThreadMessage)
       setEditingThread(false)
+      showSuccess('Updated!', 'Circle message updated successfully!')
     } catch (error) {
       console.error('Update thread error:', error)
-      alert('Error updating thread message')
+      showError('Update Failed', 'Error updating thread message')
     } finally {
       setSaving(false)
     }
@@ -247,6 +251,22 @@ const GroupView = () => {
           "Together we manifest, together we grow 🌙✨"
         </p>
       </div>
+
+      {/* Custom Alert */}
+      <Alert
+        isOpen={alert.isOpen}
+        onClose={hideAlert}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+        showCancel={alert.showCancel}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        autoClose={alert.autoClose}
+        autoCloseDelay={alert.autoCloseDelay}
+      />
     </div>
   )
 }

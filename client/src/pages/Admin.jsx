@@ -3,9 +3,12 @@ import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { Settings, Plus, Edit3, Save, X, GripVertical, ChevronUp, ChevronDown } from 'lucide-react'
 import DateTime from '../components/DateTime'
+import Alert from '../components/Alert'
+import useAlert from '../hooks/useAlert'
 
 const Admin = () => {
   const { user } = useAuth()
+  const { alert, showAlert, hideAlert, showSuccess, showError } = useAlert()
   const [affirmations, setAffirmations] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -58,7 +61,7 @@ const Admin = () => {
       setEditText('')
     } catch (error) {
       console.error('Update affirmation error:', error)
-      alert('Error updating affirmation')
+      showError('Update Failed', 'Error updating affirmation')
     } finally {
       setSaving(false)
     }
@@ -78,9 +81,10 @@ const Admin = () => {
       setAffirmations([...affirmations, response.data])
       setNewAffirmation('')
       setShowAddForm(false)
+      showSuccess('Added!', 'Affirmation added successfully!')
     } catch (error) {
       console.error('Add affirmation error:', error)
-      alert('Error adding affirmation')
+      showError('Add Failed', 'Error adding affirmation')
     } finally {
       setSaving(false)
     }
@@ -98,7 +102,7 @@ const Admin = () => {
       ))
     } catch (error) {
       console.error('Toggle affirmation error:', error)
-      alert('Error updating affirmation status')
+      showError('Update Failed', 'Error updating affirmation status')
     } finally {
       setSaving(false)
     }
@@ -142,7 +146,7 @@ const Admin = () => {
       
     } catch (error) {
       console.error('Reorder error:', error)
-      alert('Error reordering affirmations: ' + (error.response?.data?.message || error.message))
+      showError('Reorder Failed', `Error reordering affirmations: ${error.response?.data?.message || error.message}`)
       // Revert on error
       fetchAffirmations()
     } finally {
@@ -347,6 +351,22 @@ const Admin = () => {
           <li>• Changes take effect immediately for all users</li>
         </ul>
       </div>
+
+      {/* Custom Alert */}
+      <Alert
+        isOpen={alert.isOpen}
+        onClose={hideAlert}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+        showCancel={alert.showCancel}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        autoClose={alert.autoClose}
+        autoCloseDelay={alert.autoCloseDelay}
+      />
     </div>
   )
 }

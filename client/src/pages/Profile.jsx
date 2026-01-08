@@ -4,9 +4,12 @@ import { useAuth } from '../context/AuthContext'
 import { User, Camera, Save, X, Upload, Trash2 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import DateTime from '../components/DateTime'
+import Alert from '../components/Alert'
+import useAlert from '../hooks/useAlert'
 
 const Profile = () => {
   const { user, updateUser } = useAuth()
+  const { alert, showAlert, hideAlert, showSuccess, showError, showConfirm } = useAlert()
   const [profile, setProfile] = useState({
     name: '',
     email: '',
@@ -33,7 +36,7 @@ const Profile = () => {
       setNewName(response.data.name)
     } catch (error) {
       console.error('Fetch profile error:', error)
-      setError('Failed to load profile')
+      showError('Load Failed', 'Failed to load profile data')
     } finally {
       setLoading(false)
     }
@@ -41,7 +44,7 @@ const Profile = () => {
 
   const handleNameUpdate = async () => {
     if (!newName.trim()) {
-      setError('Name cannot be empty')
+      showError('Invalid Name', 'Name cannot be empty')
       return
     }
 
@@ -62,12 +65,11 @@ const Profile = () => {
       setProfile(prev => ({ ...prev, name: response.data.user.name }))
       updateUser(response.data.user)
       setEditingName(false)
-      setSuccess('Name updated successfully!')
+      showSuccess('Updated!', 'Name updated successfully!')
       
-      setTimeout(() => setSuccess(''), 3000)
     } catch (error) {
       console.error('Update name error:', error)
-      setError(error.response?.data?.message || 'Failed to update name')
+      showError('Update Failed', error.response?.data?.message || 'Failed to update name')
     } finally {
       setSaving(false)
     }
@@ -79,13 +81,13 @@ const Profile = () => {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      setError('Please select an image file')
+      showError('Invalid File Type', 'Please select an image file (JPG, PNG, GIF)')
       return
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image size must be less than 5MB')
+      showError('File Too Large', 'Image size must be less than 5MB')
       return
     }
 
@@ -108,12 +110,11 @@ const Profile = () => {
         profilePicture: response.data.profilePicture 
       }))
       updateUser(response.data.user)
-      setSuccess('Profile picture updated successfully!')
+      showSuccess('Success!', 'Profile picture updated successfully!')
       
-      setTimeout(() => setSuccess(''), 3000)
     } catch (error) {
       console.error('Upload image error:', error)
-      setError(error.response?.data?.message || 'Failed to upload image')
+      showError('Upload Failed', error.response?.data?.message || 'Failed to upload image')
     } finally {
       setUploading(false)
     }
@@ -122,28 +123,29 @@ const Profile = () => {
   const handleDeletePicture = async () => {
     if (!profile.profilePicture) return
 
-    if (!window.confirm('Are you sure you want to delete your profile picture?')) {
-      return
-    }
+    showConfirm(
+      'Delete Profile Picture',
+      'Are you sure you want to delete your profile picture? This action cannot be undone.',
+      async () => {
+        setSaving(true)
+        setError('')
+        setSuccess('')
 
-    setSaving(true)
-    setError('')
-    setSuccess('')
-
-    try {
-      const response = await axios.delete('/profile/picture')
-      
-      setProfile(prev => ({ ...prev, profilePicture: null }))
-      updateUser(response.data.user)
-      setSuccess('Profile picture deleted successfully!')
-      
-      setTimeout(() => setSuccess(''), 3000)
-    } catch (error) {
-      console.error('Delete picture error:', error)
-      setError(error.response?.data?.message || 'Failed to delete picture')
-    } finally {
-      setSaving(false)
-    }
+        try {
+          const response = await axios.delete('/profile/picture')
+          
+          setProfile(prev => ({ ...prev, profilePicture: null }))
+          updateUser(response.data.user)
+          showSuccess('Deleted!', 'Profile picture deleted successfully!')
+          
+        } catch (error) {
+          console.error('Delete picture error:', error)
+          showError('Delete Failed', error.response?.data?.message || 'Failed to delete picture')
+        } finally {
+          setSaving(false)
+        }
+      }
+    )
   }
 
   const getInitials = (name) => {
@@ -366,6 +368,22 @@ const Profile = () => {
           <li>• You can update your information anytime</li>
         </ul>
       </div>
+
+      {/* Custom Alert */}
+      <Alert
+        isOpen={alert.isOpen}
+        onClose={hideAlert}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+        showCancel={alert.showCancel}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        autoClose={alert.autoClose}
+        autoCloseDelay={alert.autoCloseDelay}
+      />
     </div>
   )
 }

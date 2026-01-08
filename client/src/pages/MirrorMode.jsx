@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { X, Check } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
+import Alert from '../components/Alert'
+import useAlert from '../hooks/useAlert'
 
 const MirrorMode = () => {
   const navigate = useNavigate()
+  const { alert, showAlert, hideAlert, showError } = useAlert()
   const [affirmations, setAffirmations] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
@@ -48,7 +51,7 @@ const MirrorMode = () => {
       navigate('/dashboard')
     } catch (error) {
       console.error('Mark complete error:', error)
-      alert('Error marking as complete. Please try again.')
+      showError('Completion Failed', 'Error marking as complete. Please try again.')
     } finally {
       setMarking(false)
     }
@@ -149,6 +152,22 @@ const MirrorMode = () => {
           </p>
         </div>
       )}
+
+      {/* Custom Alert */}
+      <Alert
+        isOpen={alert.isOpen}
+        onClose={hideAlert}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+        showCancel={alert.showCancel}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        autoClose={alert.autoClose}
+        autoCloseDelay={alert.autoCloseDelay}
+      />
     </div>
   )
 }
