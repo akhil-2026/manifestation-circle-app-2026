@@ -89,6 +89,14 @@
       }
     },
     {
+      "src": "/deployment-info.json",
+      "dest": "/deployment-info.json",
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
     },
