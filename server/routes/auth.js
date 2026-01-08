@@ -51,8 +51,6 @@ router.post('/register', [
 
     // Check user limit (max 4 regular users, super admin doesn't count toward limit)
     const userCount = await User.countDocuments({ isActive: true });
-    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
-    const isSuperAdmin = superAdminEmail && email.toLowerCase() === superAdminEmail.toLowerCase();
     
     // Super admin doesn't count toward user limit
     const maxUsers = 4;
