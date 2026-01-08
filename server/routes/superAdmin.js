@@ -1,111 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const { superAdmin, isSuperAdmin } = require('../middleware/superAdmin');
-const { auth } = require('../middleware/auth');
+const { superAdmin } = require('../middleware/superAdmin');
 const User = require('../models/User');
 const ManifestationLog = require('../models/ManifestationLog');
 const Affirmation = require('../models/Affirmation');
 
 // ============================================================================
-// STEALTH SUPER ADMIN ROUTES - COMPLETELY INVISIBLE TO ALL USERS
+// CLEAN SUPER ADMIN ROUTES - FULL SYSTEM CONTROL
 // ============================================================================
 
-// Check if user can access Super Admin (for button visibility)
-router.get('/check-access', auth, async (req, res) => {
-  try {
-    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
-    const userEmail = req.user.email;
-    
-    console.log('🔍 Super Admin Check:');
-    console.log('  - User Email:', userEmail);
-    console.log('  - Super Admin Email:', superAdminEmail);
-    console.log('  - Match:', userEmail === superAdminEmail);
-    
-    const hasAccess = superAdminEmail && userEmail === superAdminEmail;
-    
-    console.log('  - Has Access:', hasAccess);
-    
-    res.json({ 
-      hasAccess,
-      debug: {
-        userEmail,
-        superAdminEmailSet: !!superAdminEmail,
-        match: userEmail === superAdminEmail
-      }
-    });
-  } catch (error) {
-    console.error('❌ Super Admin check error:', error);
-    res.json({ hasAccess: false, error: error.message });
-  }
-});
-
-// Debug endpoint to check environment variables (REMOVE IN PRODUCTION)
-router.get('/debug/env', auth, async (req, res) => {
-  try {
-    res.json({
-      superAdminEmailSet: !!process.env.SUPER_ADMIN_EMAIL,
-      superAdminEmailLength: process.env.SUPER_ADMIN_EMAIL ? process.env.SUPER_ADMIN_EMAIL.length : 0,
-      userEmail: req.user.email,
-      userRole: req.user.role,
-      nodeEnv: process.env.NODE_ENV
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Public debug endpoint (no auth required) - REMOVE IN PRODUCTION
-router.get('/debug/public', async (req, res) => {
-  try {
-    res.json({
-      superAdminEmailSet: !!process.env.SUPER_ADMIN_EMAIL,
-      superAdminEmailLength: process.env.SUPER_ADMIN_EMAIL ? process.env.SUPER_ADMIN_EMAIL.length : 0,
-      nodeEnv: process.env.NODE_ENV,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get super admin dashboard data
-router.get('/dashboard', superAdmin, async (req, res) => {
-  try {
-    // Get all users including admins (but exclude super admin from counts)
-    const allUsers = await User.find();
-    const filteredUsers = allUsers.filter(user => user.email !== process.env.SUPER_ADMIN_EMAIL);
-    
-    const totalUsers = filteredUsers.length;
-    const totalAdmins = filteredUsers.filter(user => user.role === 'admin').length;
-    const activeUsers = filteredUsers.filter(user => user.isActive === true).length;
-    const blockedUsers = filteredUsers.filter(user => user.isActive === false).length;
-    
-    const totalManifestations = await ManifestationLog.countDocuments();
-    const totalAffirmations = await Affirmation.countDocuments();
-
-    res.json({
-      stats: {
-        totalUsers,
-        totalAdmins,
-        activeUsers,
-        blockedUsers,
-        totalManifestations,
-        totalAffirmations
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Get all users including admins (SUPER ADMIN ONLY)
+// Get all users and admins (Super Admin can see everyone)
 router.get('/users', superAdmin, async (req, res) => {
   try {
     const { page = 1, limit = 20, search = '', role = 'all', status = 'all' } = req.query;
     
     let query = {};
     
-    // Exclude super admin from results (remain invisible)
+    // Super Admin can see all users (including other admins)
+    // But exclude super admin from results to maintain invisibility
     const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
     if (superAdminEmail) {
       query.email = { $ne: superAdminEmail };
@@ -148,7 +60,7 @@ router.get('/users', superAdmin, async (req, res) => {
   }
 });
 
-// Get specific user details including calendar data (SUPER ADMIN ONLY)
+// Get specific user details including calendar data
 router.get('/users/:userId/details', superAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
@@ -158,15 +70,10 @@ router.get('/users/:userId/details', superAdmin, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Prevent accessing super admin data
-    if (isSuperAdmin(user.email)) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
     // Get user's manifestation logs for calendar
     const manifestationLogs = await ManifestationLog.find({ userId })
       .sort({ date: -1 })
-      .limit(365); // Last year of data
+      .limit(365);
 
     res.json({
       user,
@@ -180,7 +87,7 @@ router.get('/users/:userId/details', superAdmin, async (req, res) => {
   }
 });
 
-// Update user calendar and streak data (SUPER ADMIN ONLY - INCLUDING ADMINS)
+// Update user calendar and streak data (INCLUDING ADMINS)
 router.patch('/users/:userId/calendar', superAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
@@ -188,11 +95,6 @@ router.patch('/users/:userId/calendar', superAdmin, async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Prevent modifying super admin data
-    if (isSuperAdmin(user.email)) {
       return res.status(404).json({ message: 'User not found' });
     }
 
@@ -248,7 +150,7 @@ router.patch('/users/:userId/calendar', superAdmin, async (req, res) => {
   }
 });
 
-// Create new user - SUPER ADMIN ONLY
+// Create new user
 router.post('/users', superAdmin, async (req, res) => {
   try {
     const { name, email, password, role = 'user' } = req.body;
@@ -269,7 +171,6 @@ router.post('/users', superAdmin, async (req, res) => {
 
     await user.save();
 
-    // Remove password from response
     const userResponse = user.toObject();
     delete userResponse.password;
 
@@ -279,19 +180,14 @@ router.post('/users', superAdmin, async (req, res) => {
   }
 });
 
-// Update user - SUPER ADMIN ONLY
+// Update user
 router.put('/users/:userId', superAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
     const updates = req.body;
 
-    // Prevent updating super admin
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    if (isSuperAdmin(user.email)) {
       return res.status(404).json({ message: 'User not found' });
     }
 
@@ -312,7 +208,7 @@ router.put('/users/:userId', superAdmin, async (req, res) => {
   }
 });
 
-// Block/Unblock user - SUPER ADMIN ONLY
+// Block/Unblock user or admin
 router.patch('/users/:userId/status', superAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
@@ -320,11 +216,6 @@ router.patch('/users/:userId/status', superAdmin, async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Prevent blocking super admin
-    if (isSuperAdmin(user.email)) {
       return res.status(404).json({ message: 'User not found' });
     }
 
@@ -345,7 +236,7 @@ router.patch('/users/:userId/status', superAdmin, async (req, res) => {
   }
 });
 
-// Promote/Demote admin - SUPER ADMIN ONLY
+// Promote/Demote admin
 router.patch('/users/:userId/role', superAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
@@ -357,11 +248,6 @@ router.patch('/users/:userId/role', superAdmin, async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Prevent changing super admin role
-    if (isSuperAdmin(user.email)) {
       return res.status(404).json({ message: 'User not found' });
     }
 
@@ -382,18 +268,13 @@ router.patch('/users/:userId/role', superAdmin, async (req, res) => {
   }
 });
 
-// Delete user - SUPER ADMIN ONLY
+// Delete user
 router.delete('/users/:userId', superAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Prevent deleting super admin
-    if (isSuperAdmin(user.email)) {
       return res.status(404).json({ message: 'User not found' });
     }
 
@@ -408,49 +289,31 @@ router.delete('/users/:userId', superAdmin, async (req, res) => {
   }
 });
 
-// Get user's manifestation data - SUPER ADMIN ONLY
-router.get('/users/:userId/manifestations', superAdmin, async (req, res) => {
+// Get dashboard stats
+router.get('/dashboard', superAdmin, async (req, res) => {
   try {
-    const { userId } = req.params;
-    const { page = 1, limit = 20 } = req.query;
-
-    const manifestations = await ManifestationLog.find({ userId })
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await ManifestationLog.countDocuments({ userId });
+    // Get all users but exclude super admin from counts
+    const allUsers = await User.find();
+    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+    const filteredUsers = allUsers.filter(user => user.email !== superAdminEmail);
+    
+    const totalUsers = filteredUsers.length;
+    const totalAdmins = filteredUsers.filter(user => user.role === 'admin').length;
+    const activeUsers = filteredUsers.filter(user => user.isActive === true).length;
+    const blockedUsers = filteredUsers.filter(user => user.isActive === false).length;
+    
+    const totalManifestations = await ManifestationLog.countDocuments();
+    const totalAffirmations = await Affirmation.countDocuments();
 
     res.json({
-      manifestations,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      total
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Override user manifestation - SUPER ADMIN ONLY
-router.patch('/manifestations/:manifestationId', superAdmin, async (req, res) => {
-  try {
-    const { manifestationId } = req.params;
-    const updates = req.body;
-
-    const manifestation = await ManifestationLog.findByIdAndUpdate(
-      manifestationId,
-      updates,
-      { new: true, runValidators: true }
-    );
-
-    if (!manifestation) {
-      return res.status(404).json({ message: 'Manifestation not found' });
-    }
-
-    res.json({ 
-      message: 'Manifestation updated successfully',
-      manifestation
+      stats: {
+        totalUsers,
+        totalAdmins,
+        activeUsers,
+        blockedUsers,
+        totalManifestations,
+        totalAffirmations
+      }
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });

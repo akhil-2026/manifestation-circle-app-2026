@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Home, Calendar, Users, LogOut, Moon, Settings, Menu, X, Smartphone, Shield } from 'lucide-react'
 import DateTime from '../components/DateTime'
@@ -8,57 +8,8 @@ import { usePWA } from '../hooks/usePWA'
 const Navbar = () => {
   const { user, logout } = useAuth()
   const location = useLocation()
-  const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [hasSuperAdminAccess, setHasSuperAdminAccess] = useState(false)
   const { isInstalled, isOnline } = usePWA()
-
-  // Check if user has super admin access
-  useEffect(() => {
-    const checkSuperAdminAccess = async () => {
-      console.log('🔍 Super Admin useEffect triggered, user:', user?.email);
-      
-      if (!user) {
-        console.log('🔍 No user found, setting hasAccess to false');
-        setHasSuperAdminAccess(false)
-        return
-      }
-
-      try {
-        const token = localStorage.getItem('token')
-        console.log('🔍 Checking Super Admin access for:', user.email)
-        console.log('🔍 API URL:', import.meta.env.VITE_API_URL)
-        console.log('🔍 Token exists:', !!token)
-        
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/super-admin/check-access`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        
-        console.log('🔍 Response status:', response.status)
-        
-        if (response.ok) {
-          const data = await response.json()
-          console.log('🔍 Response data:', data)
-          setHasSuperAdminAccess(data.hasAccess)
-          
-          // Show debug info if available
-          if (data.debug) {
-            console.log('🔍 Debug Info:', data.debug)
-          }
-        } else {
-          console.log('🔍 Response not ok:', await response.text())
-          setHasSuperAdminAccess(false)
-        }
-      } catch (error) {
-        console.error('🔍 Super Admin check error:', error)
-        setHasSuperAdminAccess(false)
-      }
-    }
-
-    checkSuperAdminAccess()
-  }, [user])
 
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -71,9 +22,10 @@ const Navbar = () => {
     navItems.push({ path: '/admin', icon: Settings, label: 'Admin' })
   }
 
-  // Add super admin link for super admin user (completely hidden from others)
-  if (hasSuperAdminAccess || user?.email === 'akhilkrishna2400@gmail.com') {
-    navItems.push({ path: '/super-admin', icon: Shield, label: 'Super Admin' })
+  // Add Super Admin Panel button ONLY if user email matches SUPER_ADMIN_EMAIL
+  // This button must not exist in DOM for any other user
+  if (user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL) {
+    navItems.push({ path: '/super-admin', icon: Shield, label: 'Super Admin Panel' })
   }
 
   const isActive = (path) => location.pathname === path
@@ -140,12 +92,6 @@ const Navbar = () => {
             {user?.role === 'admin' && (
               <span className="px-2 py-1 text-xs bg-purple-600 text-white rounded-full">
                 Admin
-              </span>
-            )}
-            {/* Temporary debug info */}
-            {user?.email === 'akhilkrishna2400@gmail.com' && (
-              <span className="px-2 py-1 text-xs bg-yellow-600 text-white rounded-full">
-                SA: {hasSuperAdminAccess ? 'API' : 'HARDCODED'}
               </span>
             )}
             <Link

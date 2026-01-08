@@ -11,7 +11,6 @@ import Calendar from './pages/Calendar'
 import GroupView from './pages/GroupView'
 import Admin from './pages/Admin'
 import SuperAdmin from './pages/SuperAdmin'
-import SuperAdminTest from './pages/SuperAdminTest'
 import Profile from './pages/Profile'
 import UserCalendar from './components/UserCalendar'
 import LoadingSpinner from './components/LoadingSpinner'
@@ -105,12 +104,6 @@ function AppContent() {
             <ProtectedRoute>
               <Navbar />
               <SuperAdmin />
-            </ProtectedRoute>
-          } />
-          <Route path="/super-admin-test" element={
-            <ProtectedRoute>
-              <Navbar />
-              <SuperAdminTest />
             </ProtectedRoute>
           } />
           <Route path="/profile" element={

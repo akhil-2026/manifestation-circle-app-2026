@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
-const { isSuperAdmin } = require('../middleware/superAdmin');
 
 const router = express.Router();
 
@@ -30,14 +29,11 @@ router.post('/register', [
 
     const { name, email, password } = req.body;
 
-    // Check if email is in the allowed list OR is the super admin
+    // Check if email is in the allowed list
     const allowedEmails = process.env.ALLOWED_EMAILS ? 
       process.env.ALLOWED_EMAILS.split(',').map(e => e.trim().toLowerCase()) : [];
     
-    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
-    const isSuperAdmin = superAdminEmail && email.toLowerCase() === superAdminEmail.toLowerCase();
-    
-    if (!allowedEmails.includes(email.toLowerCase()) && !isSuperAdmin) {
+    if (!allowedEmails.includes(email.toLowerCase())) {
       return res.status(403).json({ 
         message: 'Registration is by invitation only. This email is not authorized to join the circle.' 
       });
@@ -49,12 +45,11 @@ router.post('/register', [
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Check user limit (max 4 regular users, super admin doesn't count toward limit)
+    // Check user limit (max 4 users)
     const userCount = await User.countDocuments({ isActive: true });
-    
-    // Super admin doesn't count toward user limit
     const maxUsers = 4;
-    if (!isSuperAdmin && userCount >= maxUsers) {
+    
+    if (userCount >= maxUsers) {
       return res.status(400).json({ message: 'Maximum users reached (4)' });
     }
 
@@ -131,7 +126,6 @@ router.post('/login', [
 // @access  Private
 router.get('/me', auth, async (req, res) => {
   try {
-    // Never expose super admin status to frontend
     const userResponse = {
       id: req.user._id,
       name: req.user.name,
@@ -139,11 +133,6 @@ router.get('/me', auth, async (req, res) => {
       role: req.user.role,
       reminderEnabled: req.user.reminderEnabled
     };
-
-    // If user is super admin, show as regular admin to frontend
-    if (isSuperAdmin(req.user.email)) {
-      userResponse.role = 'admin';
-    }
 
     res.json({ user: userResponse });
   } catch (error) {

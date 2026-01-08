@@ -15,8 +15,7 @@ import {
   Save,
   X,
   Plus,
-  Search,
-  Filter
+  Search
 } from 'lucide-react'
 import DateTime from '../components/DateTime'
 import Alert from '../components/Alert'
@@ -46,31 +45,10 @@ const SuperAdmin = () => {
     role: 'user'
   })
 
-  // Check if user has super admin access
-  const [hasAccess, setHasAccess] = useState(false)
-
   useEffect(() => {
-    checkAccess()
-  }, [])
-
-  useEffect(() => {
-    if (hasAccess) {
-      fetchDashboardData()
-      fetchUsers()
-    }
-  }, [hasAccess, currentPage, searchTerm, roleFilter, statusFilter])
-
-  const checkAccess = async () => {
-    try {
-      const response = await axios.get('/super-admin/dashboard')
-      setHasAccess(true)
-    } catch (error) {
-      setHasAccess(false)
-      if (error.response?.status === 403) {
-        showError('Access Denied', 'You do not have super admin privileges')
-      }
-    }
-  }
+    fetchDashboardData()
+    fetchUsers()
+  }, [currentPage, searchTerm, roleFilter, statusFilter])
 
   const fetchDashboardData = async () => {
     try {
@@ -218,26 +196,13 @@ const SuperAdmin = () => {
     setEditForm({})
   }
 
-  // Access denied
-  if (!hasAccess) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center">
-          <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-4">Access Denied</h1>
-          <p className="text-dark-400">This area is restricted to super administrators only.</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       {/* Header */}
       <div className="flex flex-col space-y-4 mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Crown className="w-8 h-8 text-yellow-500" />
+            <Shield className="w-8 h-8 text-red-500" />
             <h1 className="text-3xl font-bold text-white">Super Admin Panel</h1>
             {saving && (
               <div className="flex items-center space-x-2 text-yellow-400">
@@ -254,7 +219,7 @@ const SuperAdmin = () => {
           <div className="flex items-center space-x-2">
             <Shield className="w-5 h-5 text-red-400" />
             <span className="text-red-300 font-medium">
-              Super Admin Mode - Full System Control Active
+              FULL SYSTEM CONTROL - Can modify all users and admins including calendar/streak data
             </span>
           </div>
         </div>
@@ -297,7 +262,7 @@ const SuperAdmin = () => {
       {/* User Management */}
       <div className="card mb-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white">User Management</h2>
+          <h2 className="text-xl font-bold text-white">User & Admin Management</h2>
           <button
             onClick={() => setShowCreateUser(true)}
             className="btn-primary flex items-center space-x-2"
