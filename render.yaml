@@ -25,3 +25,5 @@ services:
         sync: false
       - key: ALLOWED_EMAILS
         sync: false
+      - key: SUPER_ADMIN_EMAIL
+        sync: false
