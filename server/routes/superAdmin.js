@@ -54,6 +54,20 @@ router.get('/debug/env', auth, async (req, res) => {
   }
 });
 
+// Public debug endpoint (no auth required) - REMOVE IN PRODUCTION
+router.get('/debug/public', async (req, res) => {
+  try {
+    res.json({
+      superAdminEmailSet: !!process.env.SUPER_ADMIN_EMAIL,
+      superAdminEmailLength: process.env.SUPER_ADMIN_EMAIL ? process.env.SUPER_ADMIN_EMAIL.length : 0,
+      nodeEnv: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get super admin dashboard data
 router.get('/dashboard', superAdmin, async (req, res) => {
   try {
