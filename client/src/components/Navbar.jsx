@@ -38,6 +38,11 @@ const Navbar = () => {
           const data = await response.json()
           console.log('🔍 Response data:', data)
           setHasSuperAdminAccess(data.hasAccess)
+          
+          // Show debug info if available
+          if (data.debug) {
+            console.log('🔍 Debug Info:', data.debug)
+          }
         } else {
           console.log('🔍 Response not ok:', await response.text())
           setHasSuperAdminAccess(false)

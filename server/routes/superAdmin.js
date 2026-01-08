@@ -14,11 +14,43 @@ const Affirmation = require('../models/Affirmation');
 router.get('/check-access', auth, async (req, res) => {
   try {
     const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
-    const hasAccess = superAdminEmail && req.user.email === superAdminEmail;
+    const userEmail = req.user.email;
     
-    res.json({ hasAccess });
+    console.log('🔍 Super Admin Check:');
+    console.log('  - User Email:', userEmail);
+    console.log('  - Super Admin Email:', superAdminEmail);
+    console.log('  - Match:', userEmail === superAdminEmail);
+    
+    const hasAccess = superAdminEmail && userEmail === superAdminEmail;
+    
+    console.log('  - Has Access:', hasAccess);
+    
+    res.json({ 
+      hasAccess,
+      debug: {
+        userEmail,
+        superAdminEmailSet: !!superAdminEmail,
+        match: userEmail === superAdminEmail
+      }
+    });
   } catch (error) {
-    res.json({ hasAccess: false });
+    console.error('❌ Super Admin check error:', error);
+    res.json({ hasAccess: false, error: error.message });
+  }
+});
+
+// Debug endpoint to check environment variables (REMOVE IN PRODUCTION)
+router.get('/debug/env', auth, async (req, res) => {
+  try {
+    res.json({
+      superAdminEmailSet: !!process.env.SUPER_ADMIN_EMAIL,
+      superAdminEmailLength: process.env.SUPER_ADMIN_EMAIL ? process.env.SUPER_ADMIN_EMAIL.length : 0,
+      userEmail: req.user.email,
+      userRole: req.user.role,
+      nodeEnv: process.env.NODE_ENV
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
