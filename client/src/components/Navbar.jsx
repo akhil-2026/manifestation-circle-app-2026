@@ -23,19 +23,27 @@ const Navbar = () => {
 
       try {
         const token = localStorage.getItem('token')
+        console.log('🔍 Checking Super Admin access for:', user.email)
+        console.log('🔍 API URL:', import.meta.env.VITE_API_URL)
+        
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/super-admin/check-access`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         })
         
+        console.log('🔍 Response status:', response.status)
+        
         if (response.ok) {
           const data = await response.json()
+          console.log('🔍 Response data:', data)
           setHasSuperAdminAccess(data.hasAccess)
         } else {
+          console.log('🔍 Response not ok:', await response.text())
           setHasSuperAdminAccess(false)
         }
       } catch (error) {
+        console.error('🔍 Super Admin check error:', error)
         setHasSuperAdminAccess(false)
       }
     }
@@ -123,6 +131,12 @@ const Navbar = () => {
             {user?.role === 'admin' && (
               <span className="px-2 py-1 text-xs bg-purple-600 text-white rounded-full">
                 Admin
+              </span>
+            )}
+            {/* Temporary debug info */}
+            {user?.email === 'akhilkrishna2400@gmail.com' && (
+              <span className="px-2 py-1 text-xs bg-yellow-600 text-white rounded-full">
+                SA: {hasSuperAdminAccess ? 'YES' : 'NO'}
               </span>
             )}
             <Link
