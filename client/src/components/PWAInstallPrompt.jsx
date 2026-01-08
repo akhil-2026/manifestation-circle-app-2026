@@ -7,6 +7,9 @@ const PWAInstallPrompt = () => {
   const [isInstalled, setIsInstalled] = useState(false)
 
   useEffect(() => {
+    // Only run in browser environment
+    if (typeof window === 'undefined') return
+
     // Check if app is already installed
     const checkInstalled = () => {
       if (window.matchMedia('(display-mode: standalone)').matches || 

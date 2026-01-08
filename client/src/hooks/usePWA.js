@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react'
 
 export const usePWA = () => {
   const [isInstalled, setIsInstalled] = useState(false)
-  const [isOnline, setIsOnline] = useState(navigator.onLine)
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true)
   const [deferredPrompt, setDeferredPrompt] = useState(null)
   const [canInstall, setCanInstall] = useState(false)
 
   useEffect(() => {
+    // Only run in browser environment
+    if (typeof window === 'undefined') return
+
     // Check if app is installed
     const checkInstalled = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
@@ -71,6 +74,9 @@ export const usePWA = () => {
   }
 
   const shareApp = async (data = {}) => {
+    // Only run in browser environment
+    if (typeof window === 'undefined') return false
+
     const shareData = {
       title: 'Manifestation Circle',
       text: 'Transform your reality through daily manifestation practice 🌙✨',
@@ -94,32 +100,35 @@ export const usePWA = () => {
   }
 
   const requestPersistentStorage = async () => {
-    if ('storage' in navigator && 'persist' in navigator.storage) {
-      try {
-        const persistent = await navigator.storage.persist()
-        console.log('💾 PWA: Persistent storage:', persistent)
-        return persistent
-      } catch (error) {
-        console.error('❌ PWA: Persistent storage request failed:', error)
-        return false
-      }
+    if (typeof navigator === 'undefined' || !('storage' in navigator) || !('persist' in navigator.storage)) {
+      return false
     }
-    return false
+
+    try {
+      const persistent = await navigator.storage.persist()
+      console.log('💾 PWA: Persistent storage:', persistent)
+      return persistent
+    } catch (error) {
+      console.error('❌ PWA: Persistent storage request failed:', error)
+      return false
+    }
   }
 
   const getStorageEstimate = async () => {
-    if ('storage' in navigator && 'estimate' in navigator.storage) {
-      try {
-        const estimate = await navigator.storage.estimate()
-        return {
-          quota: estimate.quota,
-          usage: estimate.usage,
-          usagePercentage: estimate.usage / estimate.quota * 100
-        }
-      } catch (error) {
-        console.error('❌ PWA: Storage estimate failed:', error)
-        return null
+    if (typeof navigator === 'undefined' || !('storage' in navigator) || !('estimate' in navigator.storage)) {
+      return null
+    }
+
+    try {
+      const estimate = await navigator.storage.estimate()
+      return {
+        quota: estimate.quota,
+        usage: estimate.usage,
+        usagePercentage: estimate.usage / estimate.quota * 100
       }
+    } catch (error) {
+      console.error('❌ PWA: Storage estimate failed:', error)
+      return null
     }
     return null
   }

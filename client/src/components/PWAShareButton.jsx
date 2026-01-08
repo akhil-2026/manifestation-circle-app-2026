@@ -1,12 +1,12 @@
 import React from 'react'
 import { Share2, Copy, Check } from 'lucide-react'
 import { usePWA } from '../hooks/usePWA'
-import { useAlert } from '../hooks/useAlert'
+import useAlert from '../hooks/useAlert'
 
 const PWAShareButton = ({ 
   title = "Manifestation Circle", 
   text = "Transform your reality through daily manifestation practice 🌙✨",
-  url = window.location.origin,
+  url = typeof window !== 'undefined' ? window.location.origin : '',
   className = "",
   variant = "default" // default, icon, text
 }) => {

@@ -34,7 +34,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 )
 
 // Register Service Worker for PWA functionality
-if ('serviceWorker' in navigator) {
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', {
@@ -62,7 +62,9 @@ if ('serviceWorker' in navigator) {
   })
   
   // Handle service worker messages
-  navigator.serviceWorker.addEventListener('message', (event) => {
-    console.log('📨 PWA: Message from service worker:', event.data)
-  })
+  if (typeof navigator !== 'undefined' && navigator.serviceWorker) {
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      console.log('📨 PWA: Message from service worker:', event.data)
+    })
+  }
 }

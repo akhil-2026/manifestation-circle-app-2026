@@ -6,6 +6,9 @@ const PWAUpdateNotification = () => {
   const [registration, setRegistration] = useState(null)
 
   useEffect(() => {
+    // Only run in browser environment
+    if (typeof navigator === 'undefined') return
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then((reg) => {
         setRegistration(reg)

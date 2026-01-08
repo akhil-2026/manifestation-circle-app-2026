@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { WifiOff, Wifi, AlertCircle } from 'lucide-react'
 
 const OfflineIndicator = () => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine)
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true)
   const [showOfflineMessage, setShowOfflineMessage] = useState(false)
 
   useEffect(() => {
+    // Only run in browser environment
+    if (typeof window === 'undefined') return
+
     const handleOnline = () => {
       console.log('🌐 PWA: Back online')
       setIsOnline(true)
@@ -22,7 +25,7 @@ const OfflineIndicator = () => {
     window.addEventListener('offline', handleOffline)
 
     // Show offline message if already offline
-    if (!navigator.onLine) {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
       setShowOfflineMessage(true)
     }
 
