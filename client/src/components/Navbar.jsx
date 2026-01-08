@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Home, Calendar, Users, LogOut, Moon, Settings, Menu, X } from 'lucide-react'
+import DateTime from '../components/DateTime'
 
 const Navbar = () => {
   const { user, logout } = useAuth()
@@ -60,8 +61,10 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Desktop User Menu */}
+          {/* Desktop DateTime & User Menu */}
           <div className="hidden md:flex items-center space-x-4">
+            <DateTime variant="compact" showSeconds={false} />
+            <div className="h-6 w-px bg-dark-600"></div>
             <span className="text-sm text-dark-300 truncate max-w-32">
               {user?.name}
             </span>
@@ -104,6 +107,11 @@ const Navbar = () => {
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden pb-4 border-t border-dark-700 mt-4 pt-4">
+            {/* DateTime Display */}
+            <div className="px-2 mb-4">
+              <DateTime variant="compact" showSeconds={false} className="justify-center" />
+            </div>
+            
             {/* User Info */}
             <div className="flex items-center justify-between mb-4 px-2">
               <span className="text-sm text-dark-300">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { Users, Crown, Flame, Target, Edit3, Save, X } from 'lucide-react'
+import DateTime from '../components/DateTime'
 
 const GroupView = () => {
   const { user } = useAuth()
@@ -68,8 +69,11 @@ const GroupView = () => {
           <Users className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />
           <h1 className="text-2xl sm:text-3xl font-bold text-white">Circle Members</h1>
         </div>
-        <div className="text-dark-400 text-sm sm:text-base">
-          {groupData.totalMembers}/4 members
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+          <DateTime variant="compact" showSeconds={false} />
+          <div className="text-dark-400 text-sm sm:text-base">
+            {groupData.totalMembers}/4 members
+          </div>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { Settings, Plus, Edit3, Save, X, GripVertical, ChevronUp, ChevronDown } from 'lucide-react'
+import DateTime from '../components/DateTime'
 
 const Admin = () => {
   const { user } = useAuth()
@@ -171,16 +172,19 @@ const Admin = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
-        <div className="flex items-center space-x-3">
-          <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Admin Panel</h1>
-          {saving && (
-            <div className="flex items-center space-x-2 text-purple-400">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400"></div>
-              <span className="text-sm">Saving...</span>
-            </div>
-          )}
+      <div className="flex flex-col space-y-4 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-4 sm:space-y-0">
+          <div className="flex items-center space-x-3">
+            <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Admin Panel</h1>
+            {saving && (
+              <div className="flex items-center space-x-2 text-purple-400">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400"></div>
+                <span className="text-sm">Saving...</span>
+              </div>
+            )}
+          </div>
+          <DateTime variant="compact" showSeconds={false} />
         </div>
         <button
           onClick={() => setShowAddForm(!showAddForm)}

@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { User, Camera, Save, X, Upload, Trash2 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
+import DateTime from '../components/DateTime'
 
 const Profile = () => {
   const { user, updateUser } = useAuth()
@@ -160,9 +161,12 @@ const Profile = () => {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       {/* Header */}
-      <div className="flex items-center space-x-3 mb-6 sm:mb-8">
-        <User className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">My Profile</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 space-y-3 sm:space-y-0">
+        <div className="flex items-center space-x-3">
+          <User className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">My Profile</h1>
+        </div>
+        <DateTime variant="compact" showSeconds={false} />
       </div>
 
       {/* Success/Error Messages */}

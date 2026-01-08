@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { Moon, Calendar, Users, Flame, Target, Play, Settings } from 'lucide-react'
+import DateTime from '../components/DateTime'
 
 const Dashboard = () => {
   const { user } = useAuth()
@@ -43,17 +44,33 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-      {/* Welcome Header */}
+      {/* Welcome Header with DateTime */}
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-          Welcome back, {user?.name} 🌙
-        </h1>
-        <p className="text-dark-400 text-sm sm:text-base">
-          {todayStatus?.completed 
-            ? "You've completed today's manifestation! ✨" 
-            : "Ready for tonight's manifestation practice?"
-          }
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-3 sm:space-y-0">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+              Welcome back, {user?.name} 🌙
+            </h1>
+            <p className="text-dark-400 text-sm sm:text-base">
+              {todayStatus?.completed 
+                ? "You've completed today's manifestation! ✨" 
+                : "Ready for tonight's manifestation practice?"
+              }
+            </p>
+          </div>
+          <DateTime variant="greeting" className="sm:text-right" />
+        </div>
+        
+        {/* Current Date & Time Display */}
+        <div className="bg-dark-800 rounded-lg p-3 sm:p-4 border border-dark-700">
+          <DateTime 
+            showDate={true} 
+            showTime={true} 
+            showSeconds={true}
+            format="full"
+            className="justify-center sm:justify-start"
+          />
+        </div>
       </div>
 
       {/* Stats Cards */}
