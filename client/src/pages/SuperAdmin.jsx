@@ -15,7 +15,8 @@ import {
   Save,
   X,
   Plus,
-  Search
+  Search,
+  CalendarDays
 } from 'lucide-react'
 import DateTime from '../components/DateTime'
 import Alert from '../components/Alert'
@@ -37,6 +38,8 @@ const SuperAdmin = () => {
   const [statusFilter, setStatusFilter] = useState('all')
   const [editingUser, setEditingUser] = useState(null)
   const [editForm, setEditForm] = useState({})
+  const [editingCalendar, setEditingCalendar] = useState(null)
+  const [calendarForm, setCalendarForm] = useState({})
   const [showCreateUser, setShowCreateUser] = useState(false)
   const [createForm, setCreateForm] = useState({
     name: '',
@@ -162,7 +165,43 @@ const SuperAdmin = () => {
     )
   }
 
-  const handleDeleteUser = async (userId, userName) => {
+  const handleEditCalendar = async (userId) => {
+    try {
+      const response = await axios.get(`/super-admin/users/${userId}/details`)
+      const userData = response.data
+      
+      setEditingCalendar(userId)
+      setCalendarForm({
+        currentStreak: userData.currentStreak || 0,
+        longestStreak: userData.longestStreak || 0,
+        calendarData: userData.calendarData || {}
+      })
+    } catch (error) {
+      showError('Error', 'Failed to load calendar data')
+    }
+  }
+
+  const handleUpdateCalendar = async (userId) => {
+    setSaving(true)
+    try {
+      await axios.patch(`/super-admin/users/${userId}/calendar`, calendarForm)
+      showSuccess('Success', 'Calendar data updated successfully')
+      setEditingCalendar(null)
+      setCalendarForm({})
+      fetchUsers()
+    } catch (error) {
+      showError('Error', error.response?.data?.message || 'Failed to update calendar')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const cancelCalendarEdit = () => {
+    setEditingCalendar(null)
+    setCalendarForm({})
+  }
+
+  const handleDeleteUser = (userId, userName) => {
     showConfirm(
       'Delete User',
       `Are you sure you want to permanently delete ${userName}? This will remove all their data and cannot be undone.`,
@@ -393,6 +432,13 @@ const SuperAdmin = () => {
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button
+                        onClick={() => handleEditCalendar(user._id)}
+                        className="p-2 text-yellow-400 hover:text-yellow-300"
+                        title="Edit Calendar"
+                      >
+                        <CalendarDays className="w-4 h-4" />
+                      </button>
+                      <button
                         onClick={() => handleToggleUserStatus(user._id, user.isActive)}
                         className={`p-2 ${user.isActive ? 'text-red-400 hover:text-red-300' : 'text-green-400 hover:text-green-300'}`}
                         title={user.isActive ? 'Block' : 'Unblock'}
@@ -493,6 +539,87 @@ const SuperAdmin = () => {
                 className="btn-secondary flex-1"
               >
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Calendar Edit Modal */}
+      {editingCalendar && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-dark-900 rounded-lg p-6 w-full max-w-lg">
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+              <CalendarDays className="w-5 h-5 text-yellow-400" />
+              <span>Edit Calendar & Streak Data</span>
+            </h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-dark-300 mb-1">
+                    Current Streak
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={calendarForm.currentStreak || 0}
+                    onChange={(e) => setCalendarForm({
+                      ...calendarForm, 
+                      currentStreak: parseInt(e.target.value) || 0
+                    })}
+                    className="input-field w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-dark-300 mb-1">
+                    Longest Streak
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={calendarForm.longestStreak || 0}
+                    onChange={(e) => setCalendarForm({
+                      ...calendarForm, 
+                      longestStreak: parseInt(e.target.value) || 0
+                    })}
+                    className="input-field w-full"
+                  />
+                </div>
+              </div>
+              
+              <div className="bg-dark-800 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-white mb-3">Calendar Status Control</h4>
+                <div className="text-xs text-dark-400 mb-3">
+                  Note: Full calendar editing interface can be expanded here. 
+                  Current implementation allows streak modification which affects calendar calculations.
+                </div>
+                <div className="flex items-center space-x-4 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-green-500 rounded"></div>
+                    <span className="text-dark-300">Completed Days</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-dark-600 rounded"></div>
+                    <span className="text-dark-300">Incomplete Days</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={() => handleUpdateCalendar(editingCalendar)}
+                disabled={saving}
+                className="btn-primary flex-1 flex items-center justify-center space-x-2"
+              >
+                <Save className="w-4 h-4" />
+                <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+              </button>
+              <button
+                onClick={cancelCalendarEdit}
+                className="btn-secondary flex-1 flex items-center justify-center space-x-2"
+              >
+                <X className="w-4 h-4" />
+                <span>Cancel</span>
               </button>
             </div>
           </div>

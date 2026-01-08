@@ -25,7 +25,7 @@ const Navbar = () => {
   // Add Super Admin Panel button ONLY if user email matches SUPER_ADMIN_EMAIL
   // This button must not exist in DOM for any other user
   if (user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL) {
-    navItems.push({ path: '/super-admin', icon: Shield, label: 'Super Admin Panel' })
+    navItems.push({ path: '/super-admin', icon: Shield, label: '' })
   }
 
   const isActive = (path) => location.pathname === path
@@ -62,9 +62,10 @@ const Navbar = () => {
                     ? 'bg-purple-600 text-white'
                     : 'text-dark-300 hover:text-white hover:bg-dark-800'
                 }`}
+                title={label || (Icon === Shield ? 'Super Admin Panel' : '')}
               >
                 <Icon className="w-4 h-4" />
-                <span>{label}</span>
+                {label && <span>{label}</span>}
               </Link>
             ))}
           </div>
@@ -171,9 +172,10 @@ const Navbar = () => {
                       ? 'bg-purple-600 text-white'
                       : 'text-dark-300 hover:text-white hover:bg-dark-800'
                   }`}
+                  title={label || (Icon === Shield ? 'Super Admin Panel' : '')}
                 >
                   <Icon className="w-5 h-5" />
-                  <span>{label}</span>
+                  {label && <span>{label}</span>}
                 </Link>
               ))}
             </div>
