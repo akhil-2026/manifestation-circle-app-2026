@@ -7,16 +7,33 @@ const ManifestationLog = require('../models/ManifestationLog');
 const Affirmation = require('../models/Affirmation');
 
 // ============================================================================
-// SUPER ADMIN ROUTES - HIDDEN FROM ALL OTHER USERS
+// STEALTH SUPER ADMIN ROUTES - COMPLETELY INVISIBLE TO ALL USERS
 // ============================================================================
+
+// Check if user can access Super Admin (for button visibility)
+router.get('/check-access', auth, async (req, res) => {
+  try {
+    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+    const hasAccess = superAdminEmail && req.user.email === superAdminEmail;
+    
+    res.json({ hasAccess });
+  } catch (error) {
+    res.json({ hasAccess: false });
+  }
+});
 
 // Get super admin dashboard data
 router.get('/dashboard', superAdmin, async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const totalAdmins = await User.countDocuments({ role: 'admin' });
-    const activeUsers = await User.countDocuments({ isActive: true });
-    const blockedUsers = await User.countDocuments({ isActive: false });
+    // Get all users including admins (but exclude super admin from counts)
+    const allUsers = await User.find();
+    const filteredUsers = allUsers.filter(user => user.email !== process.env.SUPER_ADMIN_EMAIL);
+    
+    const totalUsers = filteredUsers.length;
+    const totalAdmins = filteredUsers.filter(user => user.role === 'admin').length;
+    const activeUsers = filteredUsers.filter(user => user.isActive === true).length;
+    const blockedUsers = filteredUsers.filter(user => user.isActive === false).length;
+    
     const totalManifestations = await ManifestationLog.countDocuments();
     const totalAffirmations = await Affirmation.countDocuments();
 
@@ -31,19 +48,18 @@ router.get('/dashboard', superAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error fetching super admin dashboard:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Get all users (including admins) - SUPER ADMIN ONLY
+// Get all users including admins (SUPER ADMIN ONLY)
 router.get('/users', superAdmin, async (req, res) => {
   try {
     const { page = 1, limit = 20, search = '', role = 'all', status = 'all' } = req.query;
     
     let query = {};
     
-    // Exclude super admin from results (keep hidden)
+    // Exclude super admin from results (remain invisible)
     const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
     if (superAdminEmail) {
       query.email = { $ne: superAdminEmail };
@@ -82,7 +98,106 @@ router.get('/users', superAdmin, async (req, res) => {
       total
     });
   } catch (error) {
-    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get specific user details including calendar data (SUPER ADMIN ONLY)
+router.get('/users/:userId/details', superAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const user = await User.findById(userId).select('-password -refreshToken');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Prevent accessing super admin data
+    if (isSuperAdmin(user.email)) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Get user's manifestation logs for calendar
+    const manifestationLogs = await ManifestationLog.find({ userId })
+      .sort({ date: -1 })
+      .limit(365); // Last year of data
+
+    res.json({
+      user,
+      manifestationLogs,
+      calendarData: user.calendarData || {},
+      currentStreak: user.currentStreak || 0,
+      longestStreak: user.longestStreak || 0
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update user calendar and streak data (SUPER ADMIN ONLY - INCLUDING ADMINS)
+router.patch('/users/:userId/calendar', superAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { calendarData, currentStreak, longestStreak, manifestationLogs } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Prevent modifying super admin data
+    if (isSuperAdmin(user.email)) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update user calendar and streak data
+    if (calendarData !== undefined) user.calendarData = calendarData;
+    if (currentStreak !== undefined) user.currentStreak = currentStreak;
+    if (longestStreak !== undefined) user.longestStreak = longestStreak;
+
+    await user.save();
+
+    // Update manifestation logs if provided
+    if (manifestationLogs && Array.isArray(manifestationLogs)) {
+      for (const logData of manifestationLogs) {
+        if (logData._id) {
+          // Update existing log
+          await ManifestationLog.findByIdAndUpdate(logData._id, {
+            status: logData.status,
+            completedAt: logData.completedAt
+          });
+        } else if (logData.date) {
+          // Create new log
+          const existingLog = await ManifestationLog.findOne({
+            userId,
+            date: new Date(logData.date)
+          });
+          
+          if (!existingLog) {
+            await ManifestationLog.create({
+              userId,
+              date: new Date(logData.date),
+              status: logData.status || 'done',
+              completedAt: logData.completedAt || new Date()
+            });
+          }
+        }
+      }
+    }
+
+    res.json({ 
+      message: 'Calendar data updated successfully',
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        calendarData: user.calendarData,
+        currentStreak: user.currentStreak,
+        longestStreak: user.longestStreak
+      }
+    });
+  } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -114,7 +229,6 @@ router.post('/users', superAdmin, async (req, res) => {
 
     res.status(201).json({ message: 'User created successfully', user: userResponse });
   } catch (error) {
-    console.error('Error creating user:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -132,7 +246,7 @@ router.put('/users/:userId', superAdmin, async (req, res) => {
     }
 
     if (isSuperAdmin(user.email)) {
-      return res.status(403).json({ message: 'Cannot modify super admin' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     // Remove sensitive fields from updates
@@ -148,7 +262,6 @@ router.put('/users/:userId', superAdmin, async (req, res) => {
 
     res.json({ message: 'User updated successfully', user: updatedUser });
   } catch (error) {
-    console.error('Error updating user:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -166,7 +279,7 @@ router.patch('/users/:userId/status', superAdmin, async (req, res) => {
 
     // Prevent blocking super admin
     if (isSuperAdmin(user.email)) {
-      return res.status(403).json({ message: 'Cannot modify super admin status' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     user.isActive = isActive;
@@ -182,7 +295,6 @@ router.patch('/users/:userId/status', superAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error updating user status:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -204,7 +316,7 @@ router.patch('/users/:userId/role', superAdmin, async (req, res) => {
 
     // Prevent changing super admin role
     if (isSuperAdmin(user.email)) {
-      return res.status(403).json({ message: 'Cannot modify super admin role' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     user.role = role;
@@ -220,7 +332,6 @@ router.patch('/users/:userId/role', superAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error updating user role:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -237,7 +348,7 @@ router.delete('/users/:userId', superAdmin, async (req, res) => {
 
     // Prevent deleting super admin
     if (isSuperAdmin(user.email)) {
-      return res.status(403).json({ message: 'Cannot delete super admin' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     // Delete user's data
@@ -247,41 +358,6 @@ router.delete('/users/:userId', superAdmin, async (req, res) => {
 
     res.json({ message: 'User and all associated data deleted successfully' });
   } catch (error) {
-    console.error('Error deleting user:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Override user calendar/streak data - SUPER ADMIN ONLY
-router.patch('/users/:userId/calendar', superAdmin, async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { calendarData, currentStreak, longestStreak } = req.body;
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Update calendar and streak data
-    if (calendarData !== undefined) user.calendarData = calendarData;
-    if (currentStreak !== undefined) user.currentStreak = currentStreak;
-    if (longestStreak !== undefined) user.longestStreak = longestStreak;
-
-    await user.save();
-
-    res.json({ 
-      message: 'User calendar data updated successfully',
-      user: {
-        _id: user._id,
-        name: user.name,
-        calendarData: user.calendarData,
-        currentStreak: user.currentStreak,
-        longestStreak: user.longestStreak
-      }
-    });
-  } catch (error) {
-    console.error('Error updating user calendar:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -306,7 +382,6 @@ router.get('/users/:userId/manifestations', superAdmin, async (req, res) => {
       total
     });
   } catch (error) {
-    console.error('Error fetching user manifestations:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -332,47 +407,7 @@ router.patch('/manifestations/:manifestationId', superAdmin, async (req, res) =>
       manifestation
     });
   } catch (error) {
-    console.error('Error updating manifestation:', error);
     res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// System health check - SUPER ADMIN ONLY
-router.get('/system/health', superAdmin, async (req, res) => {
-  try {
-    const dbStatus = await User.findOne().lean() ? 'connected' : 'disconnected';
-    
-    res.json({
-      status: 'healthy',
-      database: dbStatus,
-      timestamp: new Date().toISOString(),
-      superAdminConfigured: !!process.env.SUPER_ADMIN_EMAIL,
-      userEmail: req.user.email,
-      superAdminEmail: process.env.SUPER_ADMIN_EMAIL ? 'configured' : 'not configured'
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'unhealthy',
-      error: error.message,
-      timestamp: new Date().toISOString()
-    });
-  }
-});
-
-// Debug endpoint to check super admin status
-router.get('/debug/status', auth, async (req, res) => {
-  try {
-    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
-    const isSuper = req.user.email === superAdminEmail;
-    
-    res.json({
-      userEmail: req.user.email,
-      superAdminConfigured: !!superAdminEmail,
-      isSuperAdmin: isSuper,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
 });
 

