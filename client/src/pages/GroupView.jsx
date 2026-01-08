@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
-import { Users, Crown, Flame, Target, Edit3, Save, X } from 'lucide-react'
+import { Users, Crown, Flame, Target, Edit3, Save, X, Calendar } from 'lucide-react'
 import DateTime from '../components/DateTime'
+import UserCalendar from '../components/UserCalendar'
 
 const GroupView = () => {
   const { user } = useAuth()
@@ -12,6 +13,7 @@ const GroupView = () => {
   const [newThreadMessage, setNewThreadMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [viewingCalendar, setViewingCalendar] = useState(null) // { userId, userName }
 
   useEffect(() => {
     fetchGroupData()
@@ -53,11 +55,30 @@ const GroupView = () => {
     setEditingThread(false)
   }
 
+  const handleViewCalendar = (memberId, memberName) => {
+    setViewingCalendar({ userId: memberId, userName: memberName })
+  }
+
+  const handleBackToGroup = () => {
+    setViewingCalendar(null)
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
       </div>
+    )
+  }
+
+  // Show user calendar if viewing someone's calendar
+  if (viewingCalendar) {
+    return (
+      <UserCalendar
+        userId={viewingCalendar.userId}
+        userName={viewingCalendar.userName}
+        onBack={handleBackToGroup}
+      />
     )
   }
 
@@ -185,6 +206,17 @@ const GroupView = () => {
                     style={{ width: `${member.consistencyPercentage}%` }}
                   ></div>
                 </div>
+              </div>
+
+              {/* View Calendar Button */}
+              <div className="mt-3 sm:mt-4">
+                <button
+                  onClick={() => handleViewCalendar(member.id, member.name)}
+                  className="w-full btn-secondary flex items-center justify-center space-x-2 text-xs sm:text-sm py-2"
+                >
+                  <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>View Calendar</span>
+                </button>
               </div>
 
               {/* Member since */}

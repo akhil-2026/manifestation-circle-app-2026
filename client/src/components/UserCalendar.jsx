@@ -1,25 +1,26 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Users } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import DateTime from '../components/DateTime'
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, User, ArrowLeft } from 'lucide-react'
+import DateTime from './DateTime'
 
-const Calendar = () => {
+const UserCalendar = ({ userId, userName, onBack }) => {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [calendarData, setCalendarData] = useState({})
+  const [userInfo, setUserInfo] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchCalendarData()
-  }, [currentDate])
+  }, [currentDate, userId])
 
   const fetchCalendarData = async () => {
     setLoading(true)
     try {
       const year = currentDate.getFullYear()
       const month = currentDate.getMonth() + 1
-      const response = await axios.get(`/manifestation/calendar/${year}/${month}`)
+      const response = await axios.get(`/manifestation/calendar/${userId}/${year}/${month}`)
       setCalendarData(response.data.calendar)
+      setUserInfo(response.data.user)
     } catch (error) {
       console.error('Calendar fetch error:', error)
     } finally {
@@ -109,15 +110,56 @@ const Calendar = () => {
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+  const getInitials = (name) => {
+    return name
+      ?.split(' ')
+      .map(word => word.charAt(0).toUpperCase())
+      .join('')
+      .slice(0, 2) || '?'
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
-        <div className="flex items-center space-x-3">
-          <CalendarIcon className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Manifestation Calendar</h1>
+      <div className="flex flex-col space-y-4 mb-6 sm:mb-8">
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={onBack}
+            className="flex items-center space-x-2 text-purple-400 hover:text-purple-300 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Back to Group</span>
+          </button>
         </div>
-        <DateTime variant="compact" showSeconds={false} />
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-4 sm:space-y-0">
+          <div className="flex items-center space-x-4">
+            {/* User Avatar */}
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+              {userInfo?.profilePicture ? (
+                <img
+                  src={userInfo.profilePicture}
+                  alt={`${userInfo.name}'s profile`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-white text-lg font-bold">
+                  {getInitials(userInfo?.name || userName)}
+                </span>
+              )}
+            </div>
+            
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                {userInfo?.name || userName}'s Calendar
+              </h1>
+              <p className="text-dark-400 text-sm sm:text-base">
+                View their manifestation journey
+              </p>
+            </div>
+          </div>
+          <DateTime variant="compact" showSeconds={false} />
+        </div>
       </div>
 
       {/* Calendar */}
@@ -164,7 +206,7 @@ const Calendar = () => {
           </div>
         )}
 
-          {/* Legend */}
+        {/* Legend */}
         <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-dark-700">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-600 rounded"></div>
@@ -185,23 +227,14 @@ const Calendar = () => {
         </div>
       </div>
 
-      {/* Motivational Footer */}
-      <div className="text-center mt-8 sm:mt-12">
-        <p className="text-dark-400 italic text-sm sm:text-base mb-4">
-          "Consistency is the key to manifestation 🌙✨"
+      {/* Motivational Message */}
+      <div className="text-center mt-6 sm:mt-8">
+        <p className="text-dark-400 italic text-sm sm:text-base">
+          "Supporting each other's manifestation journey 🌙✨"
         </p>
-        <div className="flex justify-center">
-          <Link 
-            to="/group" 
-            className="text-purple-400 hover:text-purple-300 transition-colors text-sm flex items-center space-x-2"
-          >
-            <Users className="w-4 h-4" />
-            <span>View other members' calendars</span>
-          </Link>
-        </div>
       </div>
     </div>
   )
 }
 
-export default Calendar
+export default UserCalendar

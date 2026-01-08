@@ -11,6 +11,7 @@ import Calendar from './pages/Calendar'
 import GroupView from './pages/GroupView'
 import Admin from './pages/Admin'
 import Profile from './pages/Profile'
+import UserCalendar from './components/UserCalendar'
 import LoadingSpinner from './components/LoadingSpinner'
 
 // Protected Route Component
