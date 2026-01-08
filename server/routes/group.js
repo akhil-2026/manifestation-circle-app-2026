@@ -3,6 +3,7 @@ const User = require('../models/User');
 const ManifestationLog = require('../models/ManifestationLog');
 const Group = require('../models/Group');
 const { auth, adminOnly } = require('../middleware/auth');
+const { filterSuperAdmin } = require('../middleware/superAdmin');
 
 const router = express.Router();
 
@@ -13,8 +14,11 @@ router.get('/details', auth, async (req, res) => {
   try {
     const users = await User.find({ isActive: true }).select('name role joinedAt profilePicture');
     
+    // Filter out super admin from group view
+    const filteredUsers = filterSuperAdmin(users);
+    
     const groupData = await Promise.all(
-      users.map(async (user) => {
+      filteredUsers.map(async (user) => {
         const logs = await ManifestationLog.find({ userId: user._id });
         const completedLogs = logs.filter(log => log.status === 'done');
         
@@ -62,7 +66,7 @@ router.get('/details', auth, async (req, res) => {
 
     res.json({
       members: groupData,
-      totalMembers: users.length
+      totalMembers: filteredUsers.length
     });
   } catch (error) {
     console.error('Get group details error:', error);

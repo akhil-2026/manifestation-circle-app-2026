@@ -17,6 +17,7 @@ const groupRoutes = require('./routes/group');
 const affirmationRoutes = require('./routes/affirmation');
 const profileRoutes = require('./routes/profile');
 const notificationRoutes = require('./routes/notifications');
+const superAdminRoutes = require('./routes/superAdmin');
 
 const app = express();
 
@@ -88,6 +89,7 @@ app.use('/api/group', groupRoutes);
 app.use('/api/affirmations', affirmationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/super-admin', superAdminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

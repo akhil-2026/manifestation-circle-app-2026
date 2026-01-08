@@ -10,6 +10,7 @@ import MirrorMode from './pages/MirrorMode'
 import Calendar from './pages/Calendar'
 import GroupView from './pages/GroupView'
 import Admin from './pages/Admin'
+import SuperAdmin from './pages/SuperAdmin'
 import Profile from './pages/Profile'
 import UserCalendar from './components/UserCalendar'
 import LoadingSpinner from './components/LoadingSpinner'
@@ -97,6 +98,12 @@ function AppContent() {
             <ProtectedRoute>
               <Navbar />
               <Admin />
+            </ProtectedRoute>
+          } />
+          <Route path="/super-admin" element={
+            <ProtectedRoute>
+              <Navbar />
+              <SuperAdmin />
             </ProtectedRoute>
           } />
           <Route path="/profile" element={
