@@ -17,6 +17,15 @@ const manifestationLogSchema = new mongoose.Schema({
   },
   completedAt: {
     type: Date
+  },
+  // Super Admin override tracking (hidden from normal users)
+  updatedBy: {
+    type: String,
+    enum: ['user', 'super_admin'],
+    default: 'user'
+  },
+  overrideTimestamp: {
+    type: Date
   }
 }, {
   timestamps: true

@@ -45,6 +45,31 @@ const userSchema = new mongoose.Schema({
   fcmToken: {
     type: String,
     default: null // Firebase Cloud Messaging token for push notifications
+  },
+  // Super Admin override fields (hidden from normal users)
+  currentStreak: {
+    type: Number,
+    default: 0
+  },
+  longestStreak: {
+    type: Number,
+    default: 0
+  },
+  streakOverriddenBy: {
+    type: String,
+    enum: ['user', 'super_admin'],
+    default: 'user'
+  },
+  streakOverrideTimestamp: {
+    type: Date
+  },
+  joinedAtOverriddenBy: {
+    type: String,
+    enum: ['user', 'super_admin'],
+    default: 'user'
+  },
+  joinedAtOverrideTimestamp: {
+    type: Date
   }
 }, {
   timestamps: true

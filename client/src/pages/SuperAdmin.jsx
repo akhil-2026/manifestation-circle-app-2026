@@ -47,6 +47,20 @@ const SuperAdmin = () => {
     password: '',
     role: 'user'
   })
+  
+  // Admin Override State
+  const [editingAdminOverride, setEditingAdminOverride] = useState(null)
+  const [adminOverrideForm, setAdminOverrideForm] = useState({
+    joinedAt: '',
+    currentStreak: 0,
+    longestStreak: 0
+  })
+  const [editingAdminCalendar, setEditingAdminCalendar] = useState(null)
+  const [adminCalendarEntries, setAdminCalendarEntries] = useState([])
+  const [newCalendarEntry, setNewCalendarEntry] = useState({
+    date: '',
+    status: 'done'
+  })
 
   useEffect(() => {
     fetchDashboardData()
@@ -219,6 +233,139 @@ const SuperAdmin = () => {
         }
       }
     )
+  }
+
+  // Admin Override Functions
+  const handleEditAdminOverride = async (userId) => {
+    try {
+      const response = await axios.get(`/super-admin/users/${userId}/details`)
+      const userData = response.data
+      
+      setEditingAdminOverride(userId)
+      setAdminOverrideForm({
+        joinedAt: userData.user.joinedAt ? new Date(userData.user.joinedAt).toISOString().split('T')[0] : '',
+        currentStreak: userData.user.currentStreak || 0,
+        longestStreak: userData.user.longestStreak || 0
+      })
+    } catch (error) {
+      showError('Error', 'Failed to load admin data')
+    }
+  }
+
+  const handleUpdateAdminJoiningDate = async (userId) => {
+    setSaving(true)
+    try {
+      await axios.patch(`/super-admin/users/${userId}/joining-date`, {
+        joinedAt: adminOverrideForm.joinedAt
+      })
+      showSuccess('Success', 'Joining date updated successfully')
+      fetchUsers()
+    } catch (error) {
+      showError('Error', error.response?.data?.message || 'Failed to update joining date')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleUpdateAdminStreak = async (userId) => {
+    setSaving(true)
+    try {
+      await axios.patch(`/super-admin/users/${userId}/streak`, {
+        currentStreak: adminOverrideForm.currentStreak,
+        longestStreak: adminOverrideForm.longestStreak
+      })
+      showSuccess('Success', 'Streak data updated successfully')
+      fetchUsers()
+    } catch (error) {
+      showError('Error', error.response?.data?.message || 'Failed to update streak')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleEditAdminCalendar = async (userId) => {
+    try {
+      const response = await axios.get(`/super-admin/users/${userId}/details`)
+      const userData = response.data
+      
+      setEditingAdminCalendar(userId)
+      setAdminCalendarEntries(userData.manifestationLogs || [])
+      setNewCalendarEntry({
+        date: new Date().toISOString().split('T')[0],
+        status: 'done'
+      })
+    } catch (error) {
+      showError('Error', 'Failed to load calendar data')
+    }
+  }
+
+  const handleUpdateCalendarEntry = async (userId, date, status) => {
+    setSaving(true)
+    try {
+      await axios.patch(`/super-admin/users/${userId}/calendar-entry`, {
+        date,
+        status,
+        completedAt: status === 'done' ? new Date() : null
+      })
+      showSuccess('Success', 'Calendar entry updated successfully')
+      
+      // Refresh calendar data
+      const response = await axios.get(`/super-admin/users/${userId}/details`)
+      setAdminCalendarEntries(response.data.manifestationLogs || [])
+      fetchUsers()
+    } catch (error) {
+      showError('Error', error.response?.data?.message || 'Failed to update calendar entry')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleAddCalendarEntry = async (userId) => {
+    if (!newCalendarEntry.date) {
+      showError('Error', 'Please select a date')
+      return
+    }
+
+    setSaving(true)
+    try {
+      await axios.patch(`/super-admin/users/${userId}/calendar-entry`, {
+        date: newCalendarEntry.date,
+        status: newCalendarEntry.status,
+        completedAt: newCalendarEntry.status === 'done' ? new Date() : null
+      })
+      showSuccess('Success', 'Calendar entry added successfully')
+      
+      // Refresh calendar data
+      const response = await axios.get(`/super-admin/users/${userId}/details`)
+      setAdminCalendarEntries(response.data.manifestationLogs || [])
+      setNewCalendarEntry({
+        date: new Date().toISOString().split('T')[0],
+        status: 'done'
+      })
+      fetchUsers()
+    } catch (error) {
+      showError('Error', error.response?.data?.message || 'Failed to add calendar entry')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const cancelAdminOverride = () => {
+    setEditingAdminOverride(null)
+    setAdminOverrideForm({
+      joinedAt: '',
+      currentStreak: 0,
+      longestStreak: 0
+    })
+  }
+
+  const cancelAdminCalendar = () => {
+    setEditingAdminCalendar(null)
+    setAdminCalendarEntries([])
+    setNewCalendarEntry({
+      date: '',
+      status: 'done'
+    })
   }
 
   const startEdit = (user) => {
@@ -438,6 +585,24 @@ const SuperAdmin = () => {
                       >
                         <CalendarDays className="w-4 h-4" />
                       </button>
+                      {user.role === 'admin' && (
+                        <button
+                          onClick={() => handleEditAdminOverride(user._id)}
+                          className="p-2 text-orange-400 hover:text-orange-300"
+                          title="Admin Override (Joining Date & Streak)"
+                        >
+                          <Crown className="w-4 h-4" />
+                        </button>
+                      )}
+                      {user.role === 'admin' && (
+                        <button
+                          onClick={() => handleEditAdminCalendar(user._id)}
+                          className="p-2 text-purple-400 hover:text-purple-300"
+                          title="Admin Calendar Override"
+                        >
+                          <Calendar className="w-4 h-4" />
+                        </button>
+                      )}
                       <button
                         onClick={() => handleToggleUserStatus(user._id, user.isActive)}
                         className={`p-2 ${user.isActive ? 'text-red-400 hover:text-red-300' : 'text-green-400 hover:text-green-300'}`}
@@ -620,6 +785,218 @@ const SuperAdmin = () => {
               >
                 <X className="w-4 h-4" />
                 <span>Cancel</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Override Modal */}
+      {editingAdminOverride && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-dark-900 rounded-lg p-6 w-full max-w-lg">
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+              <Crown className="w-5 h-5 text-orange-400" />
+              <span>Admin Override - Joining Date & Streak</span>
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-dark-300 mb-1">
+                  Joining Date
+                </label>
+                <input
+                  type="date"
+                  value={adminOverrideForm.joinedAt}
+                  onChange={(e) => setAdminOverrideForm({
+                    ...adminOverrideForm, 
+                    joinedAt: e.target.value
+                  })}
+                  className="input-field w-full"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-dark-300 mb-1">
+                    Current Streak
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={adminOverrideForm.currentStreak}
+                    onChange={(e) => setAdminOverrideForm({
+                      ...adminOverrideForm, 
+                      currentStreak: parseInt(e.target.value) || 0
+                    })}
+                    className="input-field w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-dark-300 mb-1">
+                    Longest Streak
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={adminOverrideForm.longestStreak}
+                    onChange={(e) => setAdminOverrideForm({
+                      ...adminOverrideForm, 
+                      longestStreak: parseInt(e.target.value) || 0
+                    })}
+                    className="input-field w-full"
+                  />
+                </div>
+              </div>
+              
+              <div className="bg-orange-900/20 border border-orange-500/30 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-orange-300 mb-2">⚠️ Admin Override Warning</h4>
+                <p className="text-xs text-orange-200">
+                  These changes will override the admin's actual data and be immediately visible in their dashboard. 
+                  The admin cannot revert these changes.
+                </p>
+              </div>
+            </div>
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={() => handleUpdateAdminJoiningDate(editingAdminOverride)}
+                disabled={saving}
+                className="btn-primary flex-1 flex items-center justify-center space-x-2"
+              >
+                <Save className="w-4 h-4" />
+                <span>{saving ? 'Updating...' : 'Update Joining Date'}</span>
+              </button>
+              <button
+                onClick={() => handleUpdateAdminStreak(editingAdminOverride)}
+                disabled={saving}
+                className="btn-secondary flex-1 flex items-center justify-center space-x-2"
+              >
+                <Save className="w-4 h-4" />
+                <span>{saving ? 'Updating...' : 'Update Streak'}</span>
+              </button>
+              <button
+                onClick={cancelAdminOverride}
+                className="btn-secondary flex items-center justify-center space-x-2"
+              >
+                <X className="w-4 h-4" />
+                <span>Cancel</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Calendar Override Modal */}
+      {editingAdminCalendar && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-dark-900 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+              <Calendar className="w-5 h-5 text-purple-400" />
+              <span>Admin Calendar Override</span>
+            </h3>
+            
+            {/* Add New Entry */}
+            <div className="bg-dark-800 rounded-lg p-4 mb-6">
+              <h4 className="text-sm font-medium text-white mb-3">Add Calendar Entry</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-dark-300 mb-1">Date</label>
+                  <input
+                    type="date"
+                    value={newCalendarEntry.date}
+                    onChange={(e) => setNewCalendarEntry({
+                      ...newCalendarEntry,
+                      date: e.target.value
+                    })}
+                    className="input-field w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-dark-300 mb-1">Status</label>
+                  <select
+                    value={newCalendarEntry.status}
+                    onChange={(e) => setNewCalendarEntry({
+                      ...newCalendarEntry,
+                      status: e.target.value
+                    })}
+                    className="input-field w-full"
+                  >
+                    <option value="done">Completed</option>
+                    <option value="missed">Not Completed</option>
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <button
+                    onClick={() => handleAddCalendarEntry(editingAdminCalendar)}
+                    disabled={saving}
+                    className="btn-primary w-full flex items-center justify-center space-x-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Entry</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Existing Entries */}
+            <div className="space-y-3 mb-6">
+              <h4 className="text-sm font-medium text-white">Existing Calendar Entries</h4>
+              <div className="max-h-60 overflow-y-auto space-y-2">
+                {adminCalendarEntries.map((entry) => (
+                  <div key={entry._id} className="bg-dark-800 rounded-lg p-3 flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <span className="text-white font-medium">
+                        {new Date(entry.date).toLocaleDateString()}
+                      </span>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        entry.status === 'done' 
+                          ? 'bg-green-900 text-green-300' 
+                          : 'bg-red-900 text-red-300'
+                      }`}>
+                        {entry.status === 'done' ? 'Completed' : 'Not Completed'}
+                      </span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleUpdateCalendarEntry(
+                          editingAdminCalendar, 
+                          entry.date, 
+                          entry.status === 'done' ? 'missed' : 'done'
+                        )}
+                        disabled={saving}
+                        className={`px-3 py-1 rounded text-xs font-medium ${
+                          entry.status === 'done'
+                            ? 'bg-red-600 hover:bg-red-700 text-white'
+                            : 'bg-green-600 hover:bg-green-700 text-white'
+                        }`}
+                      >
+                        {entry.status === 'done' ? 'Mark Missed' : 'Mark Done'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {adminCalendarEntries.length === 0 && (
+                  <div className="text-center py-8 text-dark-400">
+                    No calendar entries found
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4 mb-6">
+              <h4 className="text-sm font-medium text-purple-300 mb-2">⚠️ Calendar Override Warning</h4>
+              <p className="text-xs text-purple-200">
+                Calendar changes will be immediately visible in the admin's dashboard and affect their streak calculations. 
+                You can backdate or future-date entries as needed.
+              </p>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                onClick={cancelAdminCalendar}
+                className="btn-secondary flex items-center space-x-2"
+              >
+                <X className="w-4 h-4" />
+                <span>Close</span>
               </button>
             </div>
           </div>

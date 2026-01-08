@@ -22,29 +22,35 @@ router.get('/details', auth, async (req, res) => {
         const logs = await ManifestationLog.find({ userId: user._id });
         const completedLogs = logs.filter(log => log.status === 'done');
         
-        // Calculate current streak
+        // Use database streak values if overridden by Super Admin, otherwise calculate
         let currentStreak = 0;
-        const today = ManifestationLog.getDateOnly(new Date());
-        let checkDate = new Date(today);
         
-        const todayLog = logs.find(log => 
-          log.date.getTime() === today.getTime()
-        );
-        
-        if (todayLog && todayLog.status === 'done') {
-          currentStreak = 1;
-          checkDate.setDate(checkDate.getDate() - 1);
+        if (user.streakOverriddenBy === 'super_admin') {
+          currentStreak = user.currentStreak || 0;
+        } else {
+          // Calculate current streak from logs
+          const today = ManifestationLog.getDateOnly(new Date());
+          let checkDate = new Date(today);
           
-          while (true) {
-            const dayLog = logs.find(log => 
-              log.date.getTime() === checkDate.getTime()
-            );
+          const todayLog = logs.find(log => 
+            log.date.getTime() === today.getTime()
+          );
+          
+          if (todayLog && todayLog.status === 'done') {
+            currentStreak = 1;
+            checkDate.setDate(checkDate.getDate() - 1);
             
-            if (dayLog && dayLog.status === 'done') {
-              currentStreak++;
-              checkDate.setDate(checkDate.getDate() - 1);
-            } else {
-              break;
+            while (true) {
+              const dayLog = logs.find(log => 
+                log.date.getTime() === checkDate.getTime()
+              );
+              
+              if (dayLog && dayLog.status === 'done') {
+                currentStreak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+              } else {
+                break;
+              }
             }
           }
         }

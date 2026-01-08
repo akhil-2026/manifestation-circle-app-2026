@@ -10,60 +10,76 @@ const router = express.Router();
 router.get('/streak', auth, async (req, res) => {
   try {
     const userId = req.user._id;
-    const logs = await ManifestationLog.find({ userId }).sort({ date: -1 });
-
+    const User = require('../models/User');
+    const user = await User.findById(userId);
+    
+    // Use database streak values if they exist and were overridden by Super Admin
     let currentStreak = 0;
     let longestStreak = 0;
-    let tempStreak = 0;
-    let totalCompleted = 0;
-
-    // Count total completed
-    totalCompleted = logs.filter(log => log.status === 'done').length;
-
-    // Calculate streaks
-    const today = ManifestationLog.getDateOnly(new Date());
-    let checkDate = new Date(today);
-    let foundToday = false;
-
-    // Check if today is completed
-    const todayLog = logs.find(log => 
-      log.date.getTime() === today.getTime()
-    );
     
-    if (todayLog && todayLog.status === 'done') {
-      foundToday = true;
-      currentStreak = 1;
-    }
+    if (user && user.streakOverriddenBy === 'super_admin') {
+      // Use Super Admin overridden values
+      currentStreak = user.currentStreak || 0;
+      longestStreak = user.longestStreak || 0;
+    } else {
+      // Calculate streaks from logs (original logic)
+      const logs = await ManifestationLog.find({ userId }).sort({ date: -1 });
+      let tempStreak = 0;
 
-    // Calculate current streak
-    if (foundToday) {
-      checkDate.setDate(checkDate.getDate() - 1);
+      // Calculate current streak
+      const today = ManifestationLog.getDateOnly(new Date());
+      let checkDate = new Date(today);
+      let foundToday = false;
+
+      // Check if today is completed
+      const todayLog = logs.find(log => 
+        log.date.getTime() === today.getTime()
+      );
       
-      while (true) {
-        const dayLog = logs.find(log => 
-          log.date.getTime() === checkDate.getTime()
-        );
+      if (todayLog && todayLog.status === 'done') {
+        foundToday = true;
+        currentStreak = 1;
+      }
+
+      // Calculate current streak
+      if (foundToday) {
+        checkDate.setDate(checkDate.getDate() - 1);
         
-        if (dayLog && dayLog.status === 'done') {
-          currentStreak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
+        while (true) {
+          const dayLog = logs.find(log => 
+            log.date.getTime() === checkDate.getTime()
+          );
+          
+          if (dayLog && dayLog.status === 'done') {
+            currentStreak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+          } else {
+            break;
+          }
         }
       }
-    }
 
-    // Calculate longest streak
-    for (let i = 0; i < logs.length; i++) {
-      if (logs[i].status === 'done') {
-        tempStreak++;
-        longestStreak = Math.max(longestStreak, tempStreak);
-      } else {
-        tempStreak = 0;
+      // Calculate longest streak
+      for (let i = 0; i < logs.length; i++) {
+        if (logs[i].status === 'done') {
+          tempStreak++;
+          longestStreak = Math.max(longestStreak, tempStreak);
+        } else {
+          tempStreak = 0;
+        }
+      }
+
+      // Update user model with calculated values if not overridden
+      if (user && user.streakOverriddenBy !== 'super_admin') {
+        user.currentStreak = currentStreak;
+        user.longestStreak = longestStreak;
+        await user.save();
       }
     }
 
-    // Calculate consistency percentage
+    // Get logs for other stats
+    const logs = await ManifestationLog.find({ userId }).sort({ date: -1 });
+    const totalCompleted = logs.filter(log => log.status === 'done').length;
     const totalDays = logs.length;
     const consistencyPercentage = totalDays > 0 ? 
       Math.round((totalCompleted / totalDays) * 100) : 0;

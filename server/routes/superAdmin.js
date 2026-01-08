@@ -100,8 +100,16 @@ router.patch('/users/:userId/calendar', superAdmin, async (req, res) => {
 
     // Update user calendar and streak data
     if (calendarData !== undefined) user.calendarData = calendarData;
-    if (currentStreak !== undefined) user.currentStreak = currentStreak;
-    if (longestStreak !== undefined) user.longestStreak = longestStreak;
+    if (currentStreak !== undefined) {
+      user.currentStreak = currentStreak;
+      user.streakOverriddenBy = 'super_admin';
+      user.streakOverrideTimestamp = new Date();
+    }
+    if (longestStreak !== undefined) {
+      user.longestStreak = longestStreak;
+      user.streakOverriddenBy = 'super_admin';
+      user.streakOverrideTimestamp = new Date();
+    }
 
     await user.save();
 
@@ -112,7 +120,9 @@ router.patch('/users/:userId/calendar', superAdmin, async (req, res) => {
           // Update existing log
           await ManifestationLog.findByIdAndUpdate(logData._id, {
             status: logData.status,
-            completedAt: logData.completedAt
+            completedAt: logData.completedAt,
+            updatedBy: 'super_admin',
+            overrideTimestamp: new Date()
           });
         } else if (logData.date) {
           // Create new log
@@ -126,7 +136,9 @@ router.patch('/users/:userId/calendar', superAdmin, async (req, res) => {
               userId,
               date: new Date(logData.date),
               status: logData.status || 'done',
-              completedAt: logData.completedAt || new Date()
+              completedAt: logData.completedAt || new Date(),
+              updatedBy: 'super_admin',
+              overrideTimestamp: new Date()
             });
           }
         }
@@ -143,6 +155,152 @@ router.patch('/users/:userId/calendar', superAdmin, async (req, res) => {
         calendarData: user.calendarData,
         currentStreak: user.currentStreak,
         longestStreak: user.longestStreak
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Super Admin: Override admin joining date
+router.patch('/users/:userId/joining-date', superAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { joinedAt } = req.body;
+
+    if (!joinedAt) {
+      return res.status(400).json({ message: 'Joining date is required' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Only allow overriding admin joining dates
+    if (user.role !== 'admin') {
+      return res.status(400).json({ message: 'Can only override admin joining dates' });
+    }
+
+    user.joinedAt = new Date(joinedAt);
+    user.joinedAtOverriddenBy = 'super_admin';
+    user.joinedAtOverrideTimestamp = new Date();
+
+    await user.save();
+
+    res.json({ 
+      message: 'Joining date updated successfully',
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        joinedAt: user.joinedAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Super Admin: Override admin streak data
+router.patch('/users/:userId/streak', superAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { currentStreak, longestStreak } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Only allow overriding admin streak data
+    if (user.role !== 'admin') {
+      return res.status(400).json({ message: 'Can only override admin streak data' });
+    }
+
+    if (currentStreak !== undefined) {
+      user.currentStreak = Math.max(0, parseInt(currentStreak));
+    }
+    if (longestStreak !== undefined) {
+      user.longestStreak = Math.max(0, parseInt(longestStreak));
+    }
+
+    user.streakOverriddenBy = 'super_admin';
+    user.streakOverrideTimestamp = new Date();
+
+    await user.save();
+
+    res.json({ 
+      message: 'Streak data updated successfully',
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        currentStreak: user.currentStreak,
+        longestStreak: user.longestStreak
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Super Admin: Override admin calendar entries
+router.patch('/users/:userId/calendar-entry', superAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { date, status, completedAt } = req.body;
+
+    if (!date || !status) {
+      return res.status(400).json({ message: 'Date and status are required' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Only allow overriding admin calendar entries
+    if (user.role !== 'admin') {
+      return res.status(400).json({ message: 'Can only override admin calendar entries' });
+    }
+
+    const targetDate = ManifestationLog.getDateOnly(new Date(date));
+    
+    // Find existing log or create new one
+    let log = await ManifestationLog.findOne({
+      userId,
+      date: targetDate
+    });
+
+    if (log) {
+      // Update existing log
+      log.status = status;
+      log.completedAt = status === 'done' ? (completedAt ? new Date(completedAt) : new Date()) : null;
+      log.updatedBy = 'super_admin';
+      log.overrideTimestamp = new Date();
+      await log.save();
+    } else {
+      // Create new log
+      log = await ManifestationLog.create({
+        userId,
+        date: targetDate,
+        status,
+        completedAt: status === 'done' ? (completedAt ? new Date(completedAt) : new Date()) : null,
+        updatedBy: 'super_admin',
+        overrideTimestamp: new Date()
+      });
+    }
+
+    res.json({ 
+      message: 'Calendar entry updated successfully',
+      log: {
+        _id: log._id,
+        date: log.date,
+        status: log.status,
+        completedAt: log.completedAt
       }
     });
   } catch (error) {
