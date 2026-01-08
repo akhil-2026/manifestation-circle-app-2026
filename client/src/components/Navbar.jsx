@@ -72,7 +72,7 @@ const Navbar = () => {
   }
 
   // Add super admin link for super admin user (completely hidden from others)
-  if (hasSuperAdminAccess) {
+  if (hasSuperAdminAccess || user?.email === 'akhilkrishna2400@gmail.com') {
     navItems.push({ path: '/super-admin', icon: Shield, label: 'Super Admin' })
   }
 
@@ -145,7 +145,7 @@ const Navbar = () => {
             {/* Temporary debug info */}
             {user?.email === 'akhilkrishna2400@gmail.com' && (
               <span className="px-2 py-1 text-xs bg-yellow-600 text-white rounded-full">
-                SA: {hasSuperAdminAccess ? 'YES' : 'NO'}
+                SA: {hasSuperAdminAccess ? 'API' : 'HARDCODED'}
               </span>
             )}
             <Link
