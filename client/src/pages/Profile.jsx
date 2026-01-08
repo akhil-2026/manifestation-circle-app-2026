@@ -9,7 +9,7 @@ import useAlert from '../hooks/useAlert'
 
 const Profile = () => {
   const { user, updateUser } = useAuth()
-  const { alert, showAlert, hideAlert, showSuccess, showError, showConfirm } = useAlert()
+  const { alert, hideAlert, showSuccess, showError, showConfirm } = useAlert()
   const [profile, setProfile] = useState({
     name: '',
     email: '',

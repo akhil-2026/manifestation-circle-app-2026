@@ -8,7 +8,7 @@ import useAlert from '../hooks/useAlert'
 
 const Admin = () => {
   const { user } = useAuth()
-  const { alert, showAlert, hideAlert, showSuccess, showError } = useAlert()
+  const { alert, hideAlert, showSuccess, showError } = useAlert()
   const [affirmations, setAffirmations] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -50,7 +50,7 @@ const Admin = () => {
 
     setSaving(true)
     try {
-      const response = await axios.put(`/api/affirmations/${id}`, {
+      const response = await axios.put(`/affirmations/${id}`, {
         text: editText.trim()
       })
       
@@ -93,7 +93,7 @@ const Admin = () => {
   const toggleActive = async (id, isActive) => {
     setSaving(true)
     try {
-      const response = await axios.put(`/api/affirmations/${id}`, {
+      const response = await axios.put(`/affirmations/${id}`, {
         isActive: !isActive
       })
       

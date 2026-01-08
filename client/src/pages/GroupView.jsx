@@ -9,7 +9,7 @@ import useAlert from '../hooks/useAlert'
 
 const GroupView = () => {
   const { user } = useAuth()
-  const { alert, showAlert, hideAlert, showSuccess, showError } = useAlert()
+  const { alert, hideAlert, showSuccess, showError } = useAlert()
   const [groupData, setGroupData] = useState({ members: [] })
   const [thread, setThread] = useState('')
   const [editingThread, setEditingThread] = useState(false)

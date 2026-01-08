@@ -8,7 +8,7 @@ import useAlert from '../hooks/useAlert'
 
 const MirrorMode = () => {
   const navigate = useNavigate()
-  const { alert, showAlert, hideAlert, showError } = useAlert()
+  const { alert, hideAlert, showError } = useAlert()
   const [affirmations, setAffirmations] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
