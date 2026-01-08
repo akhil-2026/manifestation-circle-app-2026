@@ -1,6 +1,6 @@
 {
-  "name": "Manifestation Circle - Daily Practice & Tracking",
-  "short_name": "Manifestation Circle",
+  "name": "Manifestation Circle",
+  "short_name": "Manifest",
   "description": "Transform your reality through daily manifestation practice. Track your progress, maintain streaks, and manifest with your circle of friends. 🌙✨",
   "start_url": "/",
   "display": "standalone",
@@ -15,15 +15,15 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-192.svg",
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.svg",
+      "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
