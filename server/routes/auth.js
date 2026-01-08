@@ -30,11 +30,14 @@ router.post('/register', [
 
     const { name, email, password } = req.body;
 
-    // Check if email is in the allowed list
+    // Check if email is in the allowed list OR is the super admin
     const allowedEmails = process.env.ALLOWED_EMAILS ? 
       process.env.ALLOWED_EMAILS.split(',').map(e => e.trim().toLowerCase()) : [];
     
-    if (!allowedEmails.includes(email.toLowerCase())) {
+    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+    const isSuperAdmin = superAdminEmail && email.toLowerCase() === superAdminEmail.toLowerCase();
+    
+    if (!allowedEmails.includes(email.toLowerCase()) && !isSuperAdmin) {
       return res.status(403).json({ 
         message: 'Registration is by invitation only. This email is not authorized to join the circle.' 
       });
@@ -46,12 +49,14 @@ router.post('/register', [
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Check user limit (max 4 users + 1 hidden super admin)
+    // Check user limit (max 4 regular users, super admin doesn't count toward limit)
     const userCount = await User.countDocuments({ isActive: true });
     const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
-    const maxUsers = superAdminEmail ? 5 : 4; // Allow extra slot for super admin
+    const isSuperAdmin = superAdminEmail && email.toLowerCase() === superAdminEmail.toLowerCase();
     
-    if (userCount >= maxUsers) {
+    // Super admin doesn't count toward user limit
+    const maxUsers = 4;
+    if (!isSuperAdmin && userCount >= maxUsers) {
       return res.status(400).json({ message: 'Maximum users reached (4)' });
     }
 
