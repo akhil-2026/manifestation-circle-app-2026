@@ -1,0 +1,16 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="pwa-gradient-512" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#7c3aed"/>
+<stop offset="100%" stop-color="#3b82f6"/>
+</linearGradient>
+</defs>
+<rect width="512" height="512" rx="128" fill="url(#pwa-gradient-512)"/>
+<path d="M256 128C197.757 128 150 175.757 150 234C150 292.243 197.757 340 256 340C314.243 340 362 292.243 362 234C362 175.757 314.243 128 256 128Z" fill="white" fill-opacity="0.2"/>
+<path d="M256 148C208.872 148 170 186.872 170 234C170 260.51 186.872 276 213 276H256V234V148Z" fill="white"/>
+<circle cx="202" cy="192" r="12" fill="white" fill-opacity="0.8"/>
+<circle cx="310" cy="180" r="8" fill="white" fill-opacity="0.6"/>
+<circle cx="330" cy="224" r="6" fill="white" fill-opacity="0.4"/>
+<text x="256" y="420" font-family="sans-serif" font-size="42" font-weight="600" fill="white" text-anchor="middle">Manifestation</text>
+<text x="256" y="460" font-family="sans-serif" font-size="36" fill="white" fill-opacity="0.8" text-anchor="middle">Circle</text>
+</svg>

@@ -15,22 +15,80 @@
       "purpose": "any maskable"
     },
     {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
-    },
-    {
-      "src": "/og-image.svg",
-      "sizes": "1200x630",
-      "type": "image/svg+xml",
-      "purpose": "any"
     }
   ],
-  "categories": ["lifestyle", "health", "productivity", "wellness"],
+  "categories": ["lifestyle", "health", "productivity", "wellness", "meditation"],
   "lang": "en",
   "dir": "ltr",
   "scope": "/",
   "id": "manifestation-circle-app",
   "permissions": ["notifications"],
-  "gcm_sender_id": "103953800507"
+  "gcm_sender_id": "103953800507",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "shortcuts": [
+    {
+      "name": "Mirror Mode",
+      "short_name": "Mirror",
+      "description": "Start your daily manifestation practice",
+      "url": "/mirror",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Calendar",
+      "short_name": "Calendar",
+      "description": "View your manifestation calendar",
+      "url": "/calendar",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Group View",
+      "short_name": "Group",
+      "description": "Connect with your manifestation circle",
+      "url": "/group",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.svg",
+      "sizes": "1200x630",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Manifestation Circle Dashboard"
+    }
+  ]
 }

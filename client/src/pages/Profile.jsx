@@ -7,6 +7,7 @@ import DateTime from '../components/DateTime'
 import Alert from '../components/Alert'
 import useAlert from '../hooks/useAlert'
 import NotificationSettings from '../components/NotificationSettings'
+import PWAShareButton from '../components/PWAShareButton'
 
 const Profile = () => {
   const { user, updateUser } = useAuth()
@@ -361,6 +362,18 @@ const Profile = () => {
 
       {/* Notification Settings */}
       <NotificationSettings />
+
+      {/* Share App */}
+      <div className="card mt-6 sm:mt-8">
+        <h3 className="text-base sm:text-lg font-bold text-white mb-3">Share Manifestation Circle</h3>
+        <p className="text-dark-300 text-sm mb-4">
+          Invite friends to join your manifestation journey! Share the app with others who want to transform their reality through daily practice.
+        </p>
+        <PWAShareButton 
+          text="Join me on Manifestation Circle! Transform your reality through daily manifestation practice 🌙✨"
+          className="w-full sm:w-auto"
+        />
+      </div>
 
       {/* Tips */}
       <div className="card mt-6 sm:mt-8">

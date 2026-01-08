@@ -27,6 +27,10 @@ The favicon is available in multiple formats:
 - 🔐 **Private Access**: Invite-only for maximum 4 users
 - 🌙 **Dark Mode**: Calming dark theme throughout
 - 📱 **Mobile Responsive**: Works perfectly on all devices
+- 📲 **Progressive Web App (PWA)**: Install as native app with offline support
+- 🔔 **Push Notifications**: Daily manifestation reminders via Firebase
+- 🌐 **Offline Mode**: Access cached content when offline
+- 📤 **Share Feature**: Native sharing capabilities
 
 ## 🛠 Tech Stack
 
@@ -37,6 +41,8 @@ The favicon is available in multiple formats:
 - React Router for navigation
 - Context API for state management
 - Lucide React for icons
+- PWA with Service Worker
+- Firebase Cloud Messaging
 
 **Backend:**
 - Node.js + Express.js
@@ -141,6 +147,54 @@ Visit: http://localhost:5173
 6. Thank you for keeping my friends healthy and happy.
 7. I do not hate anyone, and I release all grudges peacefully.
 8. I am mentally calm, peaceful, and balanced.
+
+## 📲 Progressive Web App (PWA)
+
+Manifestation Circle is a fully-featured Progressive Web App that can be installed on any device for a native app experience.
+
+### 🎯 PWA Features
+- **📱 Install as App**: Add to home screen on mobile/desktop
+- **🌐 Offline Support**: Access cached content without internet
+- **⚡ Fast Loading**: Instant startup from home screen
+- **🔔 Push Notifications**: Daily manifestation reminders at 9:30 PM
+- **🔄 Background Sync**: Changes sync when back online
+- **📤 Native Sharing**: Share the app with friends easily
+
+### 📥 How to Install
+
+#### On Mobile (iOS/Android)
+1. Open the app in your browser
+2. Look for the install prompt or
+3. Tap browser menu → "Add to Home Screen" / "Install App"
+
+#### On Desktop (Chrome/Edge)
+1. Click the install icon in the address bar or
+2. Menu → "Install Manifestation Circle"
+
+#### On Safari (iOS)
+1. Tap the Share button
+2. Select "Add to Home Screen"
+3. Confirm installation
+
+### 🌐 Offline Capabilities
+When offline, you can still:
+- ✅ View cached manifestations and affirmations
+- ✅ Browse your calendar history  
+- ✅ Access profile information
+- ✅ Use Mirror Mode with saved affirmations
+- ✅ Navigate between cached pages
+
+Changes made offline will automatically sync when you're back online.
+
+### 📋 PWA Requirements Met
+- ✅ HTTPS deployment
+- ✅ Web App Manifest
+- ✅ Service Worker with offline support
+- ✅ Responsive design
+- ✅ Fast loading performance
+- ✅ Installable on all platforms
+
+For detailed PWA implementation information, see [PWA-IMPLEMENTATION.md](PWA-IMPLEMENTATION.md).
 
 ## 🚀 Deployment
 

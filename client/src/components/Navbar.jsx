@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { Home, Calendar, Users, LogOut, Moon, Settings, Menu, X } from 'lucide-react'
+import { Home, Calendar, Users, LogOut, Moon, Settings, Menu, X, Smartphone } from 'lucide-react'
 import DateTime from '../components/DateTime'
+import { usePWA } from '../hooks/usePWA'
 
 const Navbar = () => {
   const { user, logout } = useAuth()
   const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { isInstalled, isOnline } = usePWA()
 
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -64,6 +66,19 @@ const Navbar = () => {
           {/* Desktop DateTime & User Menu */}
           <div className="hidden md:flex items-center space-x-4">
             <DateTime variant="compact" showSeconds={false} />
+            
+            {/* PWA Status Indicator */}
+            {isInstalled && (
+              <div className="flex items-center space-x-1 text-xs">
+                <Smartphone className="w-3 h-3 text-green-400" />
+                <span className="text-green-400">PWA</span>
+              </div>
+            )}
+            
+            {/* Online/Offline Status */}
+            <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-400' : 'bg-orange-400'}`} 
+                 title={isOnline ? 'Online' : 'Offline'} />
+            
             <div className="h-6 w-px bg-dark-600"></div>
             <span className="text-sm text-dark-300 truncate max-w-32">
               {user?.name}
