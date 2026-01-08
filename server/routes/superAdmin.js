@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { superAdmin, isSuperAdmin } = require('../middleware/superAdmin');
+const { auth } = require('../middleware/auth');
 const User = require('../models/User');
 const ManifestationLog = require('../models/ManifestationLog');
 const Affirmation = require('../models/Affirmation');
