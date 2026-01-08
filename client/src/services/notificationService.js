@@ -22,13 +22,23 @@ class NotificationService {
         return { success: false, error: 'Notifications not supported' };
       }
 
-      // Register service worker
+      // Register service worker with better error handling
       if ('serviceWorker' in navigator) {
         try {
-          const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-          console.log('Service Worker registered:', registration);
+          // Check if service worker is already registered
+          const existingRegistration = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
+          
+          if (existingRegistration) {
+            console.log('Firebase Service Worker already registered:', existingRegistration);
+          } else {
+            const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+              scope: '/firebase-cloud-messaging-push-scope'
+            });
+            console.log('Firebase Service Worker registered:', registration);
+          }
         } catch (error) {
-          console.error('Service Worker registration failed:', error);
+          console.error('Firebase Service Worker registration failed:', error);
+          // Continue without Firebase messaging if it fails
         }
       }
 

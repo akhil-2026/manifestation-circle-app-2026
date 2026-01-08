@@ -15,6 +15,15 @@ let app;
 let messaging;
 
 try {
+  // Check if all required config values are present
+  const requiredKeys = ['VITE_FIREBASE_API_KEY', 'VITE_FIREBASE_PROJECT_ID', 'VITE_FIREBASE_MESSAGING_SENDER_ID'];
+  const missingKeys = requiredKeys.filter(key => !import.meta.env[key]);
+  
+  if (missingKeys.length > 0) {
+    console.warn('Missing Firebase config keys:', missingKeys);
+    throw new Error(`Missing Firebase configuration: ${missingKeys.join(', ')}`);
+  }
+
   app = initializeApp(firebaseConfig);
   console.log('Firebase app initialized successfully');
   
@@ -51,6 +60,11 @@ export const requestNotificationPermission = async () => {
       console.log('Notification permission granted');
       
       // Get FCM token
+      const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+      if (!vapidKey) {
+        throw new Error('VAPID key not configured');
+      }
+
       const token = await getToken(messaging, { vapidKey });
       
       if (token) {
