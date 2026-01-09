@@ -89,6 +89,14 @@
       }
     },
     {
+      "src": "/debug-env.html",
+      "dest": "/debug-env.html",
+      "headers": {
+        "Content-Type": "text/html",
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
       "src": "/deployment-info.json",
       "dest": "/deployment-info.json",
       "headers": {

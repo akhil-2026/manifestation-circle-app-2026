@@ -18,14 +18,27 @@ const Navbar = () => {
   ]
 
   // Add admin link for admin users or super admin
-  if (user?.role === 'admin' || user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL) {
+  if (user?.role === 'admin' || user?.email === (import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'akhilkrishna2400@gmail.com')) {
     navItems.push({ path: '/admin', icon: Settings, label: 'Admin' })
   }
 
   // Add Super Admin Panel button ONLY if user email matches SUPER_ADMIN_EMAIL
   // This button must not exist in DOM for any other user
-  if (user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL) {
+  const superAdminEmail = import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'akhilkrishna2400@gmail.com'
+  if (user?.email === superAdminEmail) {
     navItems.push({ path: '/super-admin', icon: Shield, label: '' })
+  }
+
+  // Debug logging for Super Admin button (remove in production)
+  if (typeof window !== 'undefined' && user) {
+    console.log('🔍 Super Admin Debug:', {
+      userEmail: user.email,
+      superAdminEmail: superAdminEmail,
+      envVar: import.meta.env.VITE_SUPER_ADMIN_EMAIL,
+      match: user.email === superAdminEmail,
+      envMode: import.meta.env.MODE,
+      allEnvVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_'))
+    })
   }
 
   const isActive = (path) => location.pathname === path
@@ -90,7 +103,7 @@ const Navbar = () => {
             <span className="text-sm text-dark-300 truncate max-w-32">
               {user?.name}
             </span>
-            {user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL ? (
+            {user?.email === (import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'akhilkrishna2400@gmail.com') ? (
               <span className="px-2 py-1 text-xs bg-red-600 text-white rounded-full">
                 Owner
               </span>
@@ -116,7 +129,7 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
-            {user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL ? (
+            {user?.email === (import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'akhilkrishna2400@gmail.com') ? (
               <span className="px-2 py-1 text-xs bg-red-600 text-white rounded-full">
                 Owner
               </span>

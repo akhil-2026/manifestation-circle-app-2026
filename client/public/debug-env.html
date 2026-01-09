@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment Debug</title>
+    <style>
+        body { font-family: monospace; background: #0f172a; color: white; padding: 20px; }
+        .env-var { margin: 10px 0; padding: 10px; background: #1e293b; border-radius: 5px; }
+        .missing { background: #7f1d1d; }
+        .present { background: #14532d; }
+    </style>
+</head>
+<body>
+    <h1>Environment Variables Debug</h1>
+    <div id="env-info"></div>
+    
+    <script>
+        const envVars = {
+            'VITE_SUPER_ADMIN_EMAIL': import.meta.env.VITE_SUPER_ADMIN_EMAIL,
+            'VITE_API_URL': import.meta.env.VITE_API_URL,
+            'VITE_FIREBASE_PROJECT_ID': import.meta.env.VITE_FIREBASE_PROJECT_ID,
+            'MODE': import.meta.env.MODE,
+            'PROD': import.meta.env.PROD,
+            'DEV': import.meta.env.DEV
+        };
+        
+        const container = document.getElementById('env-info');
+        
+        Object.entries(envVars).forEach(([key, value]) => {
+            const div = document.createElement('div');
+            div.className = `env-var ${value ? 'present' : 'missing'}`;
+            div.innerHTML = `<strong>${key}:</strong> ${value || 'MISSING'}`;
+            container.appendChild(div);
+        });
+        
+        // Also log to console
+        console.log('Environment Variables:', envVars);
+    </script>
+</body>
+</html>
