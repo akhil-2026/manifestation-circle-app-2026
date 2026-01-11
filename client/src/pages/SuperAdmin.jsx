@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
+import socketService from '../services/socketService'
 import { 
   Shield, 
   Users, 
@@ -359,17 +360,45 @@ const SuperAdmin = () => {
 
     setSaving(true)
     try {
-      await axios.post('/super-admin/test-notification', {
-        targetEmail: targetEmail,
-        title: '🧪 Test Notification',
-        message: 'This is a test notification from Super Admin to verify the real-time notification system is working correctly.',
-        type: 'info'
-      })
-      showSuccess('Success', `Test notification sent to ${targetEmail}`)
+      // Use Socket.IO instead of REST API
+      if (socketService.socket && socketService.isConnected) {
+        // Set up one-time listener for the result
+        const handleTestResult = (result) => {
+          if (result.success) {
+            showSuccess('Success', `Test notification sent to ${result.targetEmail} via Socket.IO`)
+          } else {
+            showError('Error', result.message || 'Failed to send test notification')
+          }
+          setSaving(false)
+          socketService.socket.off('notification:test:result', handleTestResult)
+        }
+        
+        socketService.socket.on('notification:test:result', handleTestResult)
+        
+        // Send the test notification request
+        socketService.socket.emit('notification:test', {
+          targetEmail: targetEmail,
+          title: '🧪 Test Notification',
+          message: 'This is a test notification from Super Admin to verify the real-time notification system is working correctly.',
+          type: 'info'
+        })
+        
+        // Timeout after 10 seconds
+        setTimeout(() => {
+          socketService.socket.off('notification:test:result', handleTestResult)
+          if (saving) {
+            setSaving(false)
+            showError('Error', 'Test notification timeout')
+          }
+        }, 10000)
+        
+      } else {
+        showError('Error', 'Socket.IO not connected. Please refresh the page.')
+        setSaving(false)
+      }
     } catch (error) {
       console.error('Error sending test notification:', error)
       showError('Error', 'Failed to send test notification')
-    } finally {
       setSaving(false)
     }
   }

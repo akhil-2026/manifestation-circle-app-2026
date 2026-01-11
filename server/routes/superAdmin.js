@@ -468,51 +468,6 @@ router.delete('/users/:userId', superAdmin, async (req, res) => {
   }
 });
 
-// Test notification endpoint (for debugging)
-router.post('/test-notification', superAdmin, async (req, res) => {
-  try {
-    const { targetEmail, title, message, type = 'info' } = req.body;
-    if (!targetEmail) {
-      return res.status(400).json({ message: 'Target email is required' });
-    }
-
-    // TODO: Send notification when real-time system is implemented
-    console.log(`Super Admin would send test notification to ${targetEmail}`);
-    
-    // Test the Socket.IO notification system
-    if (global.emitNotification) {
-      const testNotification = {
-        id: Date.now(),
-        title: title || '🧪 Test Notification',
-        message: message || 'This is a test notification from Super Admin',
-        type: type || 'info',
-        createdAt: new Date(),
-        read: false
-      };
-      
-      const sent = global.emitNotification(targetEmail, testNotification);
-      const result = { 
-        success: sent, 
-        message: sent ? 'Notification sent via Socket.IO' : 'User not connected'
-      };
-      
-      res.json({ 
-        message: 'Test notification sent successfully',
-        result
-      });
-    } else {
-      const result = { success: false, message: 'Socket.IO not available' };
-      res.json({ 
-        message: 'Test notification failed',
-        result
-      });
-    }
-  } catch (error) {
-    console.error('Error sending test notification:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
 // Get dashboard stats
 router.get('/dashboard', superAdmin, async (req, res) => {
   try {

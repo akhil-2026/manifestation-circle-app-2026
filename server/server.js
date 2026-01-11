@@ -228,6 +228,38 @@ io.use(async (socket, next) => {
 io.on('connection', (socket) => {
   console.log(`📡 User connected: ${socket.userEmail} (${socket.id})`);
   
+  // Handle test notification from Super Admin
+  socket.on('notification:test', (data) => {
+    console.log(`🧪 Test notification request from ${socket.userEmail}:`, data);
+    
+    // Only allow Super Admin to send test notifications
+    if (socket.userEmail === process.env.SUPER_ADMIN_EMAIL) {
+      const notification = {
+        id: Date.now(),
+        title: data.title || '🧪 Test Notification',
+        message: data.message || 'This is a test notification',
+        type: data.type || 'info',
+        createdAt: new Date(),
+        read: false
+      };
+      
+      // Send notification to target user
+      const sent = global.emitNotification(data.targetEmail, notification);
+      
+      // Send confirmation back to Super Admin
+      socket.emit('notification:test:result', {
+        success: sent,
+        targetEmail: data.targetEmail,
+        message: sent ? 'Notification sent successfully' : 'Target user not connected'
+      });
+    } else {
+      socket.emit('notification:test:result', {
+        success: false,
+        message: 'Unauthorized: Only Super Admin can send test notifications'
+      });
+    }
+  });
+  
   // Handle disconnection
   socket.on('disconnect', (reason) => {
     console.log(`📡 User disconnected: ${socket.userEmail} (${reason})`);
