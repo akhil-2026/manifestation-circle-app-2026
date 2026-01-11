@@ -14,7 +14,6 @@ import SuperAdmin from './pages/SuperAdmin'
 import Profile from './pages/Profile'
 import UserCalendar from './components/UserCalendar'
 import LoadingSpinner from './components/LoadingSpinner'
-import NotificationPrompt from './components/NotificationPrompt'
 import PWAInstallPrompt from './components/PWAInstallPrompt'
 import OfflineIndicator from './components/OfflineIndicator'
 import PWAUpdateNotification from './components/PWAUpdateNotification'
@@ -121,8 +120,6 @@ function AppContent() {
         <PWAUpdateNotification />
         <OfflineIndicator />
         <PWAInstallPrompt />
-        {/* Show notification prompt only for authenticated users */}
-        {user && <NotificationPrompt />}
       </Router>
     </div>
   )

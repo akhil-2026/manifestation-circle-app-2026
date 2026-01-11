@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
-import notificationService from '../services/notificationService'
 
 const AuthContext = createContext()
 
@@ -33,8 +32,7 @@ export const AuthProvider = ({ children }) => {
           const response = await axios.get('/auth/me')
           setUser(response.data.user)
           
-          // Initialize notification service after successful auth
-          await notificationService.initialize()
+          // TODO: Initialize notification service when implemented
         } catch (error) {
           console.error('Auth check failed:', error)
           localStorage.removeItem('token')
@@ -56,8 +54,7 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       setUser(user)
       
-      // Initialize notification service after login
-      await notificationService.initialize()
+      // TODO: Initialize notification service when implemented
       
       return { success: true }
     } catch (error) {
@@ -75,8 +72,7 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       setUser(user)
       
-      // Initialize notification service after registration
-      await notificationService.initialize()
+      // TODO: Initialize notification service when implemented
       
       return { success: true }
     } catch (error) {
@@ -86,8 +82,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = () => {
-    // Remove FCM token from server
-    notificationService.removeTokenFromServer()
+    // TODO: Remove notification token when implemented
     
     localStorage.removeItem('token')
     delete axios.defaults.headers.common['Authorization']

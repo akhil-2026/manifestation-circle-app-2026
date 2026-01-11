@@ -182,11 +182,15 @@ router.patch('/users/:userId/joining-date', superAdmin, async (req, res) => {
       return res.status(400).json({ message: 'Can only override admin joining dates' });
     }
 
+    const oldDate = user.joinedAt;
     user.joinedAt = new Date(joinedAt);
     user.joinedAtOverriddenBy = 'super_admin';
     user.joinedAtOverrideTimestamp = new Date();
 
     await user.save();
+
+    // TODO: Send notification when real-time system is implemented
+    console.log(`Super Admin updated joining date for ${user.email}`);
 
     res.json({ 
       message: 'Joining date updated successfully',
@@ -219,6 +223,9 @@ router.patch('/users/:userId/streak', superAdmin, async (req, res) => {
       return res.status(400).json({ message: 'Can only override admin streak data' });
     }
 
+    const oldCurrentStreak = user.currentStreak || 0;
+    const oldLongestStreak = user.longestStreak || 0;
+
     if (currentStreak !== undefined) {
       user.currentStreak = Math.max(0, parseInt(currentStreak));
     }
@@ -230,6 +237,8 @@ router.patch('/users/:userId/streak', superAdmin, async (req, res) => {
     user.streakOverrideTimestamp = new Date();
 
     await user.save();
+    // TODO: Send notification when real-time system is implemented
+    console.log(`Super Admin updated streak data for ${user.email}`);
 
     res.json({ 
       message: 'Streak data updated successfully',
@@ -275,6 +284,9 @@ router.patch('/users/:userId/calendar-entry', superAdmin, async (req, res) => {
       date: targetDate
     });
 
+    const isNewEntry = !log;
+    const oldStatus = log?.status;
+
     if (log) {
       // Update existing log
       log.status = status;
@@ -293,6 +305,15 @@ router.patch('/users/:userId/calendar-entry', superAdmin, async (req, res) => {
         overrideTimestamp: new Date()
       });
     }
+
+    // Send real-time notification to the affected admin
+    const dateStr = targetDate.toLocaleDateString();
+    const actionDescription = isNewEntry 
+      ? `added calendar entry for ${dateStr} as ${status}`
+      : `changed calendar entry for ${dateStr} from ${oldStatus} to ${status}`;
+
+    // TODO: Send notification when real-time system is implemented
+    console.log(`Super Admin updated calendar for ${user.email}`);
 
     res.json({ 
       message: 'Calendar entry updated successfully',
@@ -443,6 +464,51 @@ router.delete('/users/:userId', superAdmin, async (req, res) => {
 
     res.json({ message: 'User and all associated data deleted successfully' });
   } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Test notification endpoint (for debugging)
+router.post('/test-notification', superAdmin, async (req, res) => {
+  try {
+    const { targetEmail, title, message, type = 'info' } = req.body;
+    if (!targetEmail) {
+      return res.status(400).json({ message: 'Target email is required' });
+    }
+
+    // TODO: Send notification when real-time system is implemented
+    console.log(`Super Admin would send test notification to ${targetEmail}`);
+    
+    // Test the Socket.IO notification system
+    if (global.emitNotification) {
+      const testNotification = {
+        id: Date.now(),
+        title: title || '🧪 Test Notification',
+        message: message || 'This is a test notification from Super Admin',
+        type: type || 'info',
+        createdAt: new Date(),
+        read: false
+      };
+      
+      const sent = global.emitNotification(targetEmail, testNotification);
+      const result = { 
+        success: sent, 
+        message: sent ? 'Notification sent via Socket.IO' : 'User not connected'
+      };
+      
+      res.json({ 
+        message: 'Test notification sent successfully',
+        result
+      });
+    } else {
+      const result = { success: false, message: 'Socket.IO not available' };
+      res.json({ 
+        message: 'Test notification failed',
+        result
+      });
+    }
+  } catch (error) {
+    console.error('Error sending test notification:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

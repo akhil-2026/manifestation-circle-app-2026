@@ -4,8 +4,8 @@
 - **Frontend**: Vercel (Free)
 - **Backend**: Render (Free)
 - **Database**: MongoDB Atlas (Already configured)
-- **Push Notifications**: Firebase Cloud Messaging
-- **Scheduled Functions**: Firebase Cloud Functions
+- **Push Notifications**: To be implemented
+- **Scheduled Functions**: To be implemented
 
 ## 📋 Pre-Deployment Checklist
 
@@ -15,41 +15,17 @@
 - [x] Email whitelist implemented
 - [x] Admin functionality working
 - [x] Arrow reordering fixed
-- [x] Firebase Cloud Messaging implemented
-- [x] Push notification system ready
+- [ ] Push notification system to be implemented
+- [ ] Push notification system ready
 
 ### 🔧 Deployment Preparation
-- [ ] Firebase project setup completed
-- [ ] Firebase environment variables configured
+- [ ] Push notification system to be implemented
 - [ ] Update CORS origins for production
 - [ ] Set production environment variables
 - [ ] Build and test frontend
 - [ ] Deploy backend to Render
 - [ ] Deploy frontend to Vercel
-- [ ] Deploy Firebase Cloud Functions
-- [ ] Test production deployment with notifications
-
----
-
-## 🔥 Step 0: Firebase Setup (Required for Notifications)
-
-### 0.1 Complete Firebase Configuration
-1. Follow the complete guide in `FIREBASE-SETUP.md`
-2. Create Firebase project and get credentials
-3. Set up Firebase Cloud Functions for scheduled notifications
-4. Configure environment variables for all platforms
-
-### 0.2 Deploy Firebase Functions
-```bash
-# Install Firebase CLI
-npm install -g firebase-tools
-
-# Login to Firebase
-firebase login
-
-# Deploy functions
-firebase deploy --only functions
-```
+- [ ] Test production deployment
 
 ---
 
@@ -91,9 +67,6 @@ firebase deploy --only functions
    CLOUDINARY_CLOUD_NAME=dfpupyrdx
    CLOUDINARY_API_KEY=124997585732327
    CLOUDINARY_API_SECRET=c8LzfnMrSJuJIGovPew7ESb_Lxs
-   FIREBASE_PROJECT_ID=your_firebase_project_id
-   FIREBASE_CLIENT_EMAIL=your_firebase_client_email
-   FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----"
    ```
 
 4. **Deploy**
@@ -139,10 +112,6 @@ firebase deploy --only functions
 3. **Environment Variables** (Add in Vercel dashboard):
    ```
    VITE_API_URL=https://manifestation-circle-api.onrender.com/api
-   VITE_FIREBASE_API_KEY=your_firebase_api_key
-   VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
-   VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_sender_id
-   VITE_FIREBASE_VAPID_KEY=your_firebase_vapid_key
    ```
 
 4. **Deploy**

@@ -3,11 +3,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
-
-// Initialize Firebase Admin SDK
-const { initializeFirebase } = require('./config/firebase');
-initializeFirebase();
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -16,10 +15,28 @@ const statsRoutes = require('./routes/stats');
 const groupRoutes = require('./routes/group');
 const affirmationRoutes = require('./routes/affirmation');
 const profileRoutes = require('./routes/profile');
-const notificationRoutes = require('./routes/notifications');
 const superAdminRoutes = require('./routes/superAdmin');
 
 const app = express();
+const server = createServer(app);
+
+// Trust proxy when running behind reverse proxy (Render, Vercel, etc.)
+app.set('trust proxy', true);
+
+// Additional proxy handling middleware
+app.use((req, res, next) => {
+  // Log proxy headers for debugging (remove in production)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Proxy headers:', {
+      'x-forwarded-for': req.get('X-Forwarded-For'),
+      'x-real-ip': req.get('X-Real-IP'),
+      'x-forwarded-proto': req.get('X-Forwarded-Proto'),
+      'req.ip': req.ip,
+      'req.ips': req.ips
+    });
+  }
+  next();
+});
 
 // Security middleware
 app.use(helmet());
@@ -65,10 +82,28 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Rate limiting
+// Rate limiting with proper proxy support
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Use a custom key generator that works with proxies
+  keyGenerator: (req) => {
+    // Get the real IP from various proxy headers
+    return req.ip || 
+           req.connection.remoteAddress || 
+           req.socket.remoteAddress ||
+           (req.connection.socket ? req.connection.socket.remoteAddress : null) ||
+           'unknown';
+  },
+  // Custom handler for when limit is exceeded
+  handler: (req, res) => {
+    res.status(429).json({
+      message: 'Too many requests from this IP, please try again later.',
+      retryAfter: Math.round(limiter.windowMs / 1000)
+    });
+  }
 });
 app.use(limiter);
 
@@ -93,7 +128,6 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/group', groupRoutes);
 app.use('/api/affirmations', affirmationRoutes);
 app.use('/api/profile', profileRoutes);
-app.use('/api/notifications', notificationRoutes);
 app.use('/api/super-admin', superAdminRoutes);
 
 // Health check
@@ -102,7 +136,17 @@ app.get('/api/health', (req, res) => {
     status: 'OK', 
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    proxy: {
+      trustProxy: app.get('trust proxy'),
+      clientIP: req.ip,
+      forwardedIPs: req.ips,
+      headers: {
+        'x-forwarded-for': req.get('X-Forwarded-For'),
+        'x-real-ip': req.get('X-Real-IP'),
+        'x-forwarded-proto': req.get('X-Forwarded-Proto')
+      }
+    }
   });
 });
 
@@ -121,6 +165,96 @@ app.use('*', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+
+// Initialize Socket.IO with CORS configuration
+const io = new Server(server, {
+  cors: {
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps)
+      if (!origin) return callback(null, true);
+      
+      const allowedOrigins = [
+        process.env.CORS_ORIGIN,
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://manifestation-circle-2026-app.vercel.app',
+        'https://manifestation-circle-app-2026.vercel.app',
+        /^https:\/\/.*\.vercel\.app$/
+      ].filter(Boolean);
+      
+      if (allowedOrigins.some(allowed => {
+        if (typeof allowed === 'string') {
+          return allowed === origin;
+        } else if (allowed instanceof RegExp) {
+          return allowed.test(origin);
+        }
+        return false;
+      })) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true
+  }
+});
+
+// Socket.IO Authentication Middleware
+io.use(async (socket, next) => {
+  try {
+    const token = socket.handshake.auth.token;
+    
+    if (!token) {
+      return next(new Error('Authentication token required'));
+    }
+
+    // Verify JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Attach user info to socket
+    socket.userId = decoded.userId;
+    socket.userEmail = decoded.email;
+    socket.userRole = decoded.role;
+    
+    console.log(`🔐 Socket authenticated for user: ${decoded.email}`);
+    next();
+  } catch (error) {
+    console.error('Socket authentication failed:', error.message);
+    next(new Error('Authentication failed'));
+  }
+});
+
+// Socket.IO Connection Handler
+io.on('connection', (socket) => {
+  console.log(`📡 User connected: ${socket.userEmail} (${socket.id})`);
+  
+  // Handle disconnection
+  socket.on('disconnect', (reason) => {
+    console.log(`📡 User disconnected: ${socket.userEmail} (${reason})`);
+  });
+  
+  // Handle ping for connection health
+  socket.on('ping', () => {
+    socket.emit('pong');
+  });
+});
+
+// Simple notification emitter function (for testing)
+global.emitNotification = (userEmail, notification) => {
+  const sockets = Array.from(io.sockets.sockets.values());
+  const userSocket = sockets.find(s => s.userEmail === userEmail);
+  
+  if (userSocket) {
+    userSocket.emit('notification:new', notification);
+    console.log(`📤 Notification sent to ${userEmail}:`, notification.title);
+    return true;
+  } else {
+    console.log(`⚠️ User ${userEmail} not connected`);
+    return false;
+  }
+};
+
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📡 Socket.IO server ready`);
 });

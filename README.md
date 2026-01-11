@@ -28,7 +28,7 @@ The favicon is available in multiple formats:
 - 🌙 **Dark Mode**: Calming dark theme throughout
 - 📱 **Mobile Responsive**: Works perfectly on all devices
 - 📲 **Progressive Web App (PWA)**: Install as native app with offline support
-- 🔔 **Push Notifications**: Daily manifestation reminders via Firebase
+- 🔔 **Push Notifications**: To be implemented
 - 🌐 **Offline Mode**: Access cached content when offline
 - 📤 **Share Feature**: Native sharing capabilities
 
@@ -42,7 +42,7 @@ The favicon is available in multiple formats:
 - Context API for state management
 - Lucide React for icons
 - PWA with Service Worker
-- Firebase Cloud Messaging
+- Push notifications to be implemented
 
 **Backend:**
 - Node.js + Express.js

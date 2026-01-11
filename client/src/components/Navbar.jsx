@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Home, Calendar, Users, LogOut, Moon, Settings, Menu, X, Smartphone, Shield } from 'lucide-react'
 import DateTime from '../components/DateTime'
+import NotificationBell from '../components/NotificationBell'
 import { usePWA } from '../hooks/usePWA'
 
 const Navbar = () => {
@@ -86,6 +87,9 @@ const Navbar = () => {
           {/* Desktop DateTime & User Menu */}
           <div className="hidden md:flex items-center space-x-4">
             <DateTime variant="compact" showSeconds={false} />
+            
+            {/* Notification Bell */}
+            <NotificationBell />
             
             {/* PWA Status Indicator */}
             {isInstalled && (

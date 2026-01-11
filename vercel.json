@@ -19,15 +19,7 @@
         "Cache-Control": "no-cache"
       }
     },
-    {
-      "src": "/firebase-messaging-sw.js",
-      "dest": "/firebase-messaging-sw.js",
-      "headers": {
-        "Content-Type": "application/javascript",
-        "Service-Worker-Allowed": "/",
-        "Cache-Control": "no-cache"
-      }
-    },
+
     {
       "src": "/manifest.json",
       "dest": "/manifest.json",

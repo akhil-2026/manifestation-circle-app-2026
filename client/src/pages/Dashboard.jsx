@@ -149,7 +149,7 @@ const Dashboard = () => {
               {thread || "No message from the circle yet..."}
             </p>
           </div>
-          {user?.role === 'admin' || user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL ? (
+          {(user?.role === 'admin' || user?.email === import.meta.env.VITE_SUPER_ADMIN_EMAIL) && (
             <p className="text-xs sm:text-sm text-dark-400">
               As admin, you can update this message in the Group section
             </p>

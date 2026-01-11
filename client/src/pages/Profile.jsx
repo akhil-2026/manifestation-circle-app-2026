@@ -6,7 +6,6 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import DateTime from '../components/DateTime'
 import Alert from '../components/Alert'
 import useAlert from '../hooks/useAlert'
-import NotificationSettings from '../components/NotificationSettings'
 import PWAShareButton from '../components/PWAShareButton'
 
 const Profile = () => {
@@ -370,9 +369,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-
-      {/* Notification Settings */}
-      <NotificationSettings />
 
       {/* Share App */}
       <div className="card mt-6 sm:mt-8">

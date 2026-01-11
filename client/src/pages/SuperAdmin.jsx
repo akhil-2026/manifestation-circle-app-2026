@@ -350,6 +350,30 @@ const SuperAdmin = () => {
     }
   }
 
+  // Test Notification Function
+  const handleTestNotification = async (targetEmail) => {
+    if (!targetEmail) {
+      showError('Error', 'Please provide a target email')
+      return
+    }
+
+    setSaving(true)
+    try {
+      await axios.post('/super-admin/test-notification', {
+        targetEmail: targetEmail,
+        title: '🧪 Test Notification',
+        message: 'This is a test notification from Super Admin to verify the real-time notification system is working correctly.',
+        type: 'info'
+      })
+      showSuccess('Success', `Test notification sent to ${targetEmail}`)
+    } catch (error) {
+      console.error('Error sending test notification:', error)
+      showError('Error', 'Failed to send test notification')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const cancelAdminOverride = () => {
     setEditingAdminOverride(null)
     setAdminOverrideForm({
@@ -442,6 +466,51 @@ const SuperAdmin = () => {
           <BarChart3 className="w-6 h-6 text-indigo-400 mx-auto mb-2" />
           <div className="text-2xl font-bold text-white">{dashboardStats.totalAffirmations || 0}</div>
           <div className="text-sm text-dark-400">Affirmations</div>
+        </div>
+      </div>
+
+      {/* Test Notification Section */}
+      <div className="card p-6 mb-8">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+          <span>🧪</span>
+          <span>Test Real-Time Notifications</span>
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {users.filter(u => u.role === 'admin').slice(0, 6).map(admin => (
+            <div key={admin._id} className="bg-dark-800 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-medium truncate">{admin.name}</span>
+                <Crown className="w-4 h-4 text-purple-400" />
+              </div>
+              <div className="text-sm text-dark-400 mb-3 truncate">{admin.email}</div>
+              <button
+                onClick={() => handleTestNotification(admin.email)}
+                disabled={saving}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white px-3 py-2 rounded-md text-sm transition-colors"
+              >
+                Send Test Notification
+              </button>
+            </div>
+          ))}
+          {users.filter(u => u.role === 'user').slice(0, 3).map(user => (
+            <div key={user._id} className="bg-dark-800 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-medium truncate">{user.name}</span>
+                <Users className="w-4 h-4 text-blue-400" />
+              </div>
+              <div className="text-sm text-dark-400 mb-3 truncate">{user.email}</div>
+              <button
+                onClick={() => handleTestNotification(user.email)}
+                disabled={saving}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white px-3 py-2 rounded-md text-sm transition-colors"
+              >
+                Send Test Notification
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 text-sm text-dark-400">
+          Click any button above to send a test notification to that user. They should receive it instantly if logged in.
         </div>
       </div>
 

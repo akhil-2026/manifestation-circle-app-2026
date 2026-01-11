@@ -12,7 +12,7 @@ Manifestation Circle has been successfully converted into a Progressive Web App 
   - Other requests: Stale While Revalidate
 - **Offline Support**: Serves cached content when offline
 - **Background Sync**: Handles offline data synchronization
-- **Push Notifications**: Integrates with Firebase Cloud Messaging
+- **Push Notifications**: To be implemented
 - **Auto-Update**: Handles service worker updates seamlessly
 
 ### 2. Web App Manifest (`/public/manifest.json`)
