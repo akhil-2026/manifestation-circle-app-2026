@@ -14,9 +14,17 @@ class SocketService {
       return;
     }
 
-    const serverUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    // Get the base server URL (remove /api path for Socket.IO)
+    let serverUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    
+    // Remove /api path if present (Socket.IO connects to root)
+    if (serverUrl.endsWith('/api')) {
+      serverUrl = serverUrl.slice(0, -4);
+    }
     
     console.log('📡 Connecting to Socket.IO server:', serverUrl);
+    console.log('📡 Environment:', import.meta.env.MODE);
+    console.log('📡 Token available:', !!token);
 
     this.socket = io(serverUrl, {
       auth: {
@@ -24,7 +32,14 @@ class SocketService {
       },
       transports: ['websocket', 'polling'],
       timeout: 20000,
-      forceNew: true
+      forceNew: true,
+      // Production-specific settings
+      upgrade: true,
+      rememberUpgrade: true,
+      // Handle connection issues in production
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
     });
 
     this.setupEventListeners();
@@ -52,7 +67,15 @@ class SocketService {
 
     this.socket.on('connect_error', (error) => {
       console.error('📡 Socket connection error:', error.message);
+      console.error('📡 Error details:', error);
       this.isConnected = false;
+      
+      // Emit error details to listeners
+      this.emit('socket:error', { 
+        error: error.message,
+        type: error.type,
+        description: error.description 
+      });
     });
 
     // Notification event listeners

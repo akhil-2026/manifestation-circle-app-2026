@@ -170,6 +170,8 @@ const PORT = process.env.PORT || 5000;
 const io = new Server(server, {
   cors: {
     origin: function (origin, callback) {
+      console.log('🌐 Socket.IO CORS request from origin:', origin);
+      
       // Allow requests with no origin (like mobile apps)
       if (!origin) return callback(null, true);
       
@@ -182,6 +184,8 @@ const io = new Server(server, {
         /^https:\/\/.*\.vercel\.app$/
       ].filter(Boolean);
       
+      console.log('🔒 Socket.IO allowed origins:', allowedOrigins);
+      
       if (allowedOrigins.some(allowed => {
         if (typeof allowed === 'string') {
           return allowed === origin;
@@ -190,13 +194,19 @@ const io = new Server(server, {
         }
         return false;
       })) {
+        console.log('✅ Socket.IO CORS allowed for:', origin);
         callback(null, true);
       } else {
+        console.log('❌ Socket.IO CORS blocked for:', origin);
         callback(new Error('Not allowed by CORS'));
       }
     },
-    credentials: true
-  }
+    credentials: true,
+    methods: ["GET", "POST"]
+  },
+  // Production settings
+  allowEIO3: true,
+  transports: ['websocket', 'polling']
 });
 
 // Socket.IO Authentication Middleware
